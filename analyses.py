@@ -6,6 +6,8 @@ import numpy as np
 data_folder_training = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_training_backup/data/"
 data_folder_test = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_test_backup/data/"
 
+df_result_tr = pd.DataFrame([])
+
 #read all the files in a folders and creat a list
 filenames_tr = os.listdir(data_folder_training)
 
@@ -174,7 +176,7 @@ for UPDATED_file_tr in UPDATED_files_tr:
     Total_resp_Seq_2 = df_training_2["resp_total_corr"].sum()
     
     for iterations_2 in range(0,6):
-        df_training_2_loop = df_exp_fil_trials.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations_2]
+        df_training_2_loop = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations_2]
         df_training_2_loop.dropna(how='all', axis=1)
         Total_resp_Seq_loop = df_training_2_loop["resp_total_corr"].sum()
         loop_n_1[iterations_2] = df_training_2_loop["resp_total_corr"].sum()
@@ -201,10 +203,10 @@ for UPDATED_file_tr in UPDATED_files_tr:
 
     df_tr_2_gen_tot = df_training_2.loc[(df_training_2['conditions'] == "general")]
     RT_Gen_Tot_Tr2 = np.mean(df_tr_2_gen_tot["resp_total_time"])
-    
+
     # RT for each loop TR2
     for iterations_5 in range(0,6):
-        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations_5]
+        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations_5]
         df_tr_2_spec_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "spec")]
         df_tr_2_sub_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "subrule")]
         df_tr_2_rule_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "rule")]
@@ -220,21 +222,21 @@ for UPDATED_file_tr in UPDATED_files_tr:
         loop_n_3[iterations_5] = np.mean(df_tr_2_rule_loop["resp_total_time"]) #loop with its response value
         loop_n_4[iterations_5] = np.mean(df_tr_2_gen_loop["resp_total_time"])
     
-    df_RT_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
-    df_RT_spec_per_loop = df_RT_spec_per_loop.transpose()
-    df_RT_spec_per_loop.columns = ["RT_spec2_1", "RT_spec2_2", "RT_spec2_3", "RT_spec2_4", "RT_spec2_5", "RT_spec2_6"]
+    df_RT2_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
+    df_RT2_spec_per_loop = df_RT2_spec_per_loop.transpose()
+    df_RT2_spec_per_loop.columns = ["RT_spec2_1", "RT_spec2_2", "RT_spec2_3", "RT_spec2_4", "RT_spec2_5", "RT_spec2_6"]
+ 
+    df_RT2_sub_per_loop = pd.DataFrame.from_dict(loop_n_2,  orient='index')
+    df_RT2_sub_per_loop = df_RT2_sub_per_loop.transpose()
+    df_RT2_sub_per_loop.columns = ["RT_sub2_1", "RT_sub2_2", "RT_sub2_3", "RT_sub2_4", "RT_sub2_5", "RT_sub2_6"]
     
-    df_RT_sub_per_loop = pd.DataFrame.from_dict(loop_n_2,  orient='index')
-    df_RT_sub_per_loop = df_RT_sub_per_loop.transpose()
-    df_RT_sub_per_loop.columns = ["RT_sub2_1", "RT_sub2_2", "RT_sub2_3", "RT_sub2_4", "RT_sub2_5", "RT_sub2_6"]
+    df_RT2_rule_per_loop = pd.DataFrame.from_dict(loop_n_3,  orient='index')
+    df_RT2_rule_per_loop = df_RT2_rule_per_loop.transpose()
+    df_RT2_rule_per_loop.columns = ["RT_rule2_1", "RT_rule2_2", "RT_rule2_3", "RT_rule2_4", "RT_rule2_5", "RT_rule2_6"]
     
-    df_RT_rule_per_loop = pd.DataFrame.from_dict(loop_n_3,  orient='index')
-    df_RT_rule_per_loop = df_RT_rule_per_loop.transpose()
-    df_RT_rule_per_loop.columns = ["RT_rule2_1", "RT_rule2_2", "RT_rule2_3", "RT_rule2_4", "RT_rule2_5", "RT_rule2_6"]
-    
-    df_RT_gen_per_loop = pd.DataFrame.from_dict(loop_n_4,  orient='index')
-    df_RT_gen_per_loop = df_RT_gen_per_loop.transpose()
-    df_RT_gen_per_loop.columns = ["RT_gen2_1", "RT_gen2_2", "RT_gen2_3", "RT_gen2_4", "RT_gen2_5", "RT_gen2_6"]
+    df_RT2_gen_per_loop = pd.DataFrame.from_dict(loop_n_4,  orient='index')
+    df_RT2_gen_per_loop = df_RT2_gen_per_loop.transpose()
+    df_RT2_gen_per_loop.columns = ["RT_gen2_1", "RT_gen2_2", "RT_gen2_3", "RT_gen2_4", "RT_gen2_5", "RT_gen2_6"]
      
     loop_n_1.clear()
     loop_n_2.clear()
@@ -256,7 +258,7 @@ for UPDATED_file_tr in UPDATED_files_tr:
     
     # OT for each loop TR2
     for iterations_6 in range(0,6):
-        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations_6]
+        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations_6]
         df_ot_2_spec_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "spec")]
         df_ot_2_sub_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "subrule")]
         df_ot_2_rule_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "rule")]
@@ -272,23 +274,61 @@ for UPDATED_file_tr in UPDATED_files_tr:
         loop_n_3[iterations_6] = np.mean(df_ot_2_rule_loop["resp1b.rt"])
         loop_n_4[iterations_6] = np.mean(df_ot_2_gen_loop["resp1b.rt"])
     
-    df_OT_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
-    df_OT_spec_per_loop = df_OT_spec_per_loop.transpose()
-    df_OT_spec_per_loop.columns = ["OT_spec2_1", "OT_spec2_2", "OT_spec2_3", "OT_spec2_4", "OT_spec2_5", "OT_spec2_6"]
+    df_OT2_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
+    df_OT2_spec_per_loop = df_OT2_spec_per_loop.transpose()
+    df_OT2_spec_per_loop.columns = ["OT_spec2_1", "OT_spec2_2", "OT_spec2_3", "OT_spec2_4", "OT_spec2_5", "OT_spec2_6"]
     
-    df_OT_sub_per_loop = pd.DataFrame.from_dict(loop_n_2,  orient='index')
-    df_OT_sub_per_loop = df_OT_sub_per_loop.transpose()
-    df_OT_sub_per_loop.columns = ["OT_sub2_1", "OT_sub2_2", "OT_sub2_3", "OT_sub2_4", "OT_sub2_5", "OT_sub2_6"]
+    df_OT2_sub_per_loop = pd.DataFrame.from_dict(loop_n_2,  orient='index')
+    df_OT2_sub_per_loop = df_OT2_sub_per_loop.transpose()
+    df_OT2_sub_per_loop.columns = ["OT_sub2_1", "OT_sub2_2", "OT_sub2_3", "OT_sub2_4", "OT_sub2_5", "OT_sub2_6"]
     
-    df_OT_rule_per_loop = pd.DataFrame.from_dict(loop_n_3,  orient='index')
-    df_OT_rule_per_loop = df_OT_rule_per_loop.transpose()
-    df_OT_rule_per_loop.columns = ["OT_rule2_1", "OT_rule_2", "OT_rule_3", "OT_rule_4", "OT_rule_5", "OT_rule2_6"]
+    df_OT2_rule_per_loop = pd.DataFrame.from_dict(loop_n_3,  orient='index')
+    df_OT2_rule_per_loop = df_OT2_rule_per_loop.transpose()
+    df_OT2_rule_per_loop.columns = ["OT_rule2_1", "OT_rule_2", "OT_rule_3", "OT_rule_4", "OT_rule_5", "OT_rule2_6"]
     
-    df_OT_gen_per_loop = pd.DataFrame.from_dict(loop_n_4,  orient='index')
-    df_OT_gen_per_loop = df_OT_gen_per_loop.transpose()
-    df_OT_gen_per_loop.columns = ["OT_gen2_1", "OT_gen2_2", "OT_gen2_3", "OT_gen2_4", "OT_gen2_5", "OT_gen2_6"]
+    df_OT2_gen_per_loop = pd.DataFrame.from_dict(loop_n_4,  orient='index')
+    df_OT2_gen_per_loop = df_OT2_gen_per_loop.transpose()
+    df_OT2_gen_per_loop.columns = ["OT_gen2_1", "OT_gen2_2", "OT_gen2_3", "OT_gen2_4", "OT_gen2_5", "OT_gen2_6"]
      
     loop_n_1.clear() 
     loop_n_2.clear()
     loop_n_3.clear() 
-    loop_n_4.clear() 
+    loop_n_4.clear()
+    
+    result = pd.concat([df_RT_spec_per_loop, df_RT_sub_per_loop, df_RT_rule_per_loop,df_RT_gen_per_loop, df_OT_spec_per_loop, df_OT_sub_per_loop, df_OT_rule_per_loop,df_OT_gen_per_loop, df_RT2_spec_per_loop, df_RT2_sub_per_loop, df_RT2_rule_per_loop,df_RT2_gen_per_loop, df_OT2_spec_per_loop, df_OT2_sub_per_loop, df_OT2_rule_per_loop,df_OT2_gen_per_loop], axis=1, sort=False)
+    result["Subj"] = participant_number
+
+    result["Corr_R_Tot"] = Corr_R_Tot
+    result["Corr_S1_Tot"] = Corr_S_Tot
+
+    result["Total_S2_Tot"] = Total_resp_Seq_2
+
+    result["RT_Spec_Tot_Tr1"] = RT_Spec_Tot_Tr1
+    result["RT_Sub_Tot_Tr1"] = RT_Sub_Tot_Tr1
+    result["RT_Rule_Tot_Tr1"] = RT_Rule_Tot_Tr1
+    result["RT_Gen_Tot_Tr1"] = RT_Gen_Tot_Tr1
+    
+    result["OT_Spec_Tot_Tr1"] = OT_Spec_Tot_Tr1
+    result["OT_Sub_Tot_Tr1"] = OT_Sub_Tot_Tr1
+    result["OT_Rule_Tot_Tr1"] = OT_Rule_Tot_Tr1
+    result["OT_Gen_Tot_Tr1"] = OT_Gen_Tot_Tr1        
+
+    result["RT_Spec_Tot_Tr2"] = RT_Spec_Tot_Tr2
+    result["RT_Sub_Tot_Tr2"] = RT_Sub_Tot_Tr2
+    result["RT_Rule_Tot_Tr2"] = RT_Rule_Tot_Tr2
+    result["RT_Gen_Tot_Tr2"] = RT_Gen_Tot_Tr2
+    
+    result["OT_Spec_Tot_Tr2"] = OT_Spec_Tot_Tr2
+    result["OT_Sub_Tot_Tr2"] = OT_Sub_Tot_Tr2
+    result["OT_Rule_Tot_Tr2"] = OT_Rule_Tot_Tr2
+    result["OT_Gen_Tot_Tr2"] = OT_Gen_Tot_Tr2     
+    
+    df_result_tr = df_result_tr.append(result)
+    
+     
+columns_names = list(df_result_tr.columns.values.tolist())
+with open('columns_names.txt', 'w') as f:
+    for columns_name in columns_names:
+        print >> f, columns_name
+
+df_result_tr.to_csv("prova.csv", index = False, header=True)
