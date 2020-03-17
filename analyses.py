@@ -32,8 +32,8 @@ for UPDATED_file in UPDATED_files:
     # ALL LOOPS TOGETHER
     df_training_1 = df_exp_fil_trials.loc[df['repeat_training_loop1.thisRepN'] >= 0]
     df_training_1.dropna(how='all', axis=1)
-    Total_resp_R = df_training_1["resp_R.corr"].sum() #number of correct relationship answers (incl. fillers) - all loops
-    Total_resp_Seq_1 = df_training_1["resp_total_corr"].sum() #number of correct sequences (incl. fillers) - all loops
+    Corr_R_Tot = df_training_1["resp_R.corr"].sum() #number of correct relationship answers (incl. fillers) - all loops
+    Corr_S_Tot = df_training_1["resp_total_corr"].sum() #number of correct sequences (incl. fillers) - all loops
     
     loop_n_1 = {} #create empty ditctionary
     loop_n_2 = {}
@@ -52,7 +52,7 @@ for UPDATED_file in UPDATED_files:
      
     df_corr_Seq_per_loop = pd.DataFrame.from_dict(loop_n_2,  orient='index')
     df_corr_Seq_per_loop = df_corr_Seq_per_loop.transpose()
-    df_corr_R_per_loop.columns = ["corr_Seq_1", "corr_Seq_2", "corr_Seq_3", "corr_Seq_4", "corr_Seq_5", "corr_Seq_6"]    
+    df_corr_R_per_loop.columns = ["corr_Sa_1", "corr_Sa_2", "corr_Sa_3", "corr_Sa_4", "corr_Sa_5", "corr_Sa_6"]    
    
     loop_n_1.clear() #empty the previous dictionary
     loop_n_2.clear()
@@ -71,7 +71,7 @@ for UPDATED_file in UPDATED_files:
              
     df_corr_Seq_per_loop_b = pd.DataFrame.from_dict(loop_n_1,  orient='index')
     df_corr_Seq_per_loop_b = df_corr_Seq_per_loop_b.transpose()
-    df_corr_Seq_per_loop_b.columns = ["corr_Seq_1b", "corr_Seq_2b", "corr_Seq_3b", "corr_Seq_4b", "corr_Seq_5b", "corr_Seq_6b"]    
+    df_corr_Seq_per_loop_b.columns = ["corr_Sb_1", "corr_Sb_2", "corr_Sb_3", "corr_Sb_4", "corr_Sb_5", "corr_Sb_6"]    
     print(df_corr_Seq_per_loop_b)
     
     loop_n_1.clear() #empty the previous dictionary
