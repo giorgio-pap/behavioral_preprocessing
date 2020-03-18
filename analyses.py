@@ -6,7 +6,7 @@ import numpy as np
 data_folder_training = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_training_backup/data/"
 data_folder_test = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_test_backup/data/"
 
-df_result_tr = pd.DataFrame([])
+df_result_tr = pd.DataFrame([]) #empty dataframe for result file
 
 #read all the files in a folders and creat a list
 filenames_tr = os.listdir(data_folder_training)
@@ -23,7 +23,7 @@ pattern = re.compile(r'(\d*)_Mental')
 participant_numbers =  ["; ".join(pattern.findall(item)) for item in UPDATED_files_tr]
 
 #read all the UPDATED files one at the time
-for UPDATED_file_tr in UPDATED_files_tr:
+for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (number)
     participant_number = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_tr)]
     str_number = ' '.join(map(str, participant_number)) 
     
@@ -38,22 +38,25 @@ for UPDATED_file_tr in UPDATED_files_tr:
 
     # ALL LOOPS TOGETHER
     df_training_1 = df_exp_fil_trials.loc[df_tr['repeat_training_loop1.thisRepN'] >= 0]
-    df_training_1.dropna(how='all', axis=1)
     Corr_R_Tot = df_training_1["resp_R.corr"].sum() #number of correct relationship answers (incl. fillers) - all loops
     Corr_S_Tot = df_training_1["resp_total_corr"].sum() #number of correct sequences (incl. fillers) - all loops
+    
+    df_training_1_wo = df_exp_fil_trials.loc[df_tr['repeat_training_loop1.thisRepN'] >= 0]
+    df_training_1_wo = df_training_1_wo.drop(df_training_1[df_training_1['trial_type'] == "filler"].index)
+    Corr_R_Tot_wo = df_training_1_wo["resp_R.corr"].sum() #number of correct relationship answers (without fillers) - all loops
+    Corr_S_Tot_wo = df_training_1_wo["resp_total_corr"].sum() #number of correct sequences (without fillers) - all loops
     
     loop_n_1 = {} #create empty ditctionary
     loop_n_2 = {}
     loop_n_3 = {} #create empty ditctionary
     loop_n_4 = {}
     
-    for iterations_1 in range(0,6):
-        df_training_1_loop = df_exp_fil_trials.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations_1]
-        df_training_1_loop.dropna(how='all', axis=1)
+    for iterations in range(0,6):
+        df_training_1_loop = df_exp_fil_trials.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
         Total_resp_R_loop = df_training_1_loop["resp_R.corr"].sum() #number of correct relationship answers (incl. fillers) - all loops
         Total_resp_Seq_loop = df_training_1_loop["resp_total_corr"].sum()
-        loop_n_1[iterations_1] = df_training_1_loop["resp_R.corr"].sum() #loop with its response value
-        loop_n_2[iterations_1] = df_training_1_loop["resp_total_corr"].sum()
+        loop_n_1[iterations] = df_training_1_loop["resp_R.corr"].sum() #loop with its response value
+        loop_n_2[iterations] = df_training_1_loop["resp_total_corr"].sum()
         
     df_corr_R_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
     df_corr_R_per_loop = df_corr_R_per_loop.transpose()
@@ -67,8 +70,9 @@ for UPDATED_file_tr in UPDATED_files_tr:
     loop_n_2.clear()
     
     # Corr_R for each loop TR1
-    for iterations_0 in range(0,6):
-        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations_0]
+    #FILLER TRIALS ARE NOT CONSIDERED ANYMORE
+    for iterations in range(0,6):
+        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
         df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")]
         df_tr_1_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
         df_tr_1_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
@@ -77,23 +81,13 @@ for UPDATED_file_tr in UPDATED_files_tr:
         Corr_R_Spec_loop_Tr1 = df_tr_1_spec_loop["resp_R.corr"].sum()
         Corr_R_Sub_loop_Tr1 = df_tr_1_sub_loop["resp_R.corr"].sum()
         Corr_R_Rule_loop_Tr1 = df_tr_1_rule_loop["resp_R.corr"].sum()
-        Corr_R_Gen_loop_Tr1 = df_tr_1_gen_loop["resp_R.corr"].sum()
-        
-        loop_n_1[iterations_0] = df_tr_1_spec_loop["resp_R.corr"].sum() #loop with its response value
-        loop_n_2[iterations_0] = df_tr_1_sub_loop["resp_R.corr"].sum()
-        loop_n_3[iterations_0] = df_tr_1_rule_loop["resp_R.corr"].sum()
-        loop_n_4[iterations_0] = df_tr_1_gen_loop["resp_R.corr"].sum()
-        
-        Corr_S_Spec_loop_Tr1 = df_tr_1_spec_loop["resp_total_corr"].sum()
-        Corr_S_Sub_loop_Tr1 = df_tr_1_sub_loop["resp_total_corr"].sum()
-        Corr_S_Rule_loop_Tr1 = df_tr_1_rule_loop["resp_total_corr"].sum()
-        Corr_S_Gen_loop_Tr1 = df_tr_1_gen_loop["resp_total_corr"].sum()
-        
-        loop_n_1[iterations_0] = df_tr_1_spec_loop["resp_total_corr"].sum() #loop with its response value
-        loop_n_2[iterations_0] = df_tr_1_sub_loop["resp_total_corr"].sum()
-        loop_n_3[iterations_0] = df_tr_1_rule_loop["resp_total_corr"].sum()
-        loop_n_4[iterations_0] = df_tr_1_gen_loop["resp_total_corr"].sum()
-    
+        Corr_R_Gen_loop_Tr1 = df_tr_1_gen_loop["resp_R.corr"].sum()      
+ 
+        loop_n_1[iterations] = df_tr_1_spec_loop["resp_R.corr"].sum() #loop with its response value
+        loop_n_2[iterations] = df_tr_1_sub_loop["resp_R.corr"].sum()
+        loop_n_3[iterations] = df_tr_1_rule_loop["resp_R.corr"].sum()
+        loop_n_4[iterations] = df_tr_1_gen_loop["resp_R.corr"].sum()
+                
     df_corr_R_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
     df_corr_R_spec_per_loop = df_corr_R_spec_per_loop.transpose()
     df_corr_R_spec_per_loop.columns = ["Corr_R_spec1_1", "Corr_R_spec1_2", "Corr_R_spec1_3", "Corr_R_spec1_4", "Corr_R_spec1_5", "Corr_R_spec1_6"]
@@ -110,6 +104,30 @@ for UPDATED_file_tr in UPDATED_files_tr:
     df_corr_R_gen_per_loop = df_corr_R_gen_per_loop.transpose()
     df_corr_R_gen_per_loop.columns = ["Corr_R_gen1_1", "Corr_R_gen1_2", "Corr_R_gen1_3", "Corr_R_gen1_4", "Corr_R_gen1_5", "Corr_R_gen1_6"]
     
+    loop_n_1.clear() #empty the dictionary
+    loop_n_2.clear()
+    loop_n_3.clear()
+    loop_n_4.clear()
+
+    for iterations in range(0,6):
+        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
+        df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")] #& (df_training_1['did_get_here'] == 1)]
+        df_tr_1_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
+        df_tr_1_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
+        df_tr_1_gen_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "general")]
+            
+
+        Corr_S_Spec_loop_Tr1 = df_tr_1_spec_loop["resp_total_corr"].sum()
+        Corr_S_Sub_loop_Tr1 = df_tr_1_sub_loop["resp_total_corr"].sum()
+        Corr_S_Rule_loop_Tr1 = df_tr_1_rule_loop["resp_total_corr"].sum()
+        Corr_S_Gen_loop_Tr1 = df_tr_1_gen_loop["resp_total_corr"].sum()
+        
+        loop_n_1[iterations] = df_tr_1_spec_loop["resp_total_corr"].sum() #loop with its response value
+        loop_n_2[iterations] = df_tr_1_sub_loop["resp_total_corr"].sum()
+        loop_n_3[iterations] = df_tr_1_rule_loop["resp_total_corr"].sum()
+        loop_n_4[iterations] = df_tr_1_gen_loop["resp_total_corr"].sum()
+    
+
     df_corr_S_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
     df_corr_S_spec_per_loop = df_corr_S_spec_per_loop.transpose()
     df_corr_S_spec_per_loop.columns = ["Corr_S_spec1_1", "Corr_S_spec1_2", "Corr_S_spec1_3", "Corr_S_spec1_4", "Corr_S_spec1_5", "Corr_S_spec1_6"]
@@ -150,8 +168,8 @@ for UPDATED_file_tr in UPDATED_files_tr:
     RT_Gen_Tot_Tr1 = np.mean(df_tr_1_gen_tot["resp_total_time"])
     
     # RT for each loop TR1
-    for iterations_3 in range(0,6):
-        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations_3]
+    for iterations in range(0,6):
+        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
         df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")]
         df_tr_1_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
         df_tr_1_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
@@ -162,10 +180,10 @@ for UPDATED_file_tr in UPDATED_files_tr:
         RT_Rule_loop_Tr1 = np.mean(df_tr_1_rule_loop["resp_total_time"])
         RT_Gen_loop_Tr1 = np.mean(df_tr_1_gen_loop["resp_total_time"])
         
-        loop_n_1[iterations_3] = np.mean(df_tr_1_spec_loop["resp_total_time"]) #loop with its response value
-        loop_n_2[iterations_3] = np.mean(df_tr_1_sub_loop["resp_total_time"])
-        loop_n_3[iterations_3] = np.mean(df_tr_1_rule_loop["resp_total_time"]) #loop with its response value
-        loop_n_4[iterations_3] = np.mean(df_tr_1_gen_loop["resp_total_time"])
+        loop_n_1[iterations] = np.mean(df_tr_1_spec_loop["resp_total_time"]) #loop with its response value
+        loop_n_2[iterations] = np.mean(df_tr_1_sub_loop["resp_total_time"])
+        loop_n_3[iterations] = np.mean(df_tr_1_rule_loop["resp_total_time"]) #loop with its response value
+        loop_n_4[iterations] = np.mean(df_tr_1_gen_loop["resp_total_time"])
     
     df_RT_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
     df_RT_spec_per_loop = df_RT_spec_per_loop.transpose()
@@ -202,8 +220,8 @@ for UPDATED_file_tr in UPDATED_files_tr:
     OT_Gen_Tot_Tr1 = np.mean(df_ot_1_gen_tot["resp1.rt"])
     
     # OT for each loop TR1
-    for iterations_4 in range(0,6):
-        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations_4]
+    for iterations in range(0,6):
+        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
         df_ot_1_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")]
         df_ot_1_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
         df_ot_1_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
@@ -214,10 +232,10 @@ for UPDATED_file_tr in UPDATED_files_tr:
         OT_Rule_loop_Tr1 = np.mean(df_ot_1_rule_loop["resp1.rt"])
         OT_Gen_loop_Tr1 = np.mean(df_ot_1_gen_loop["resp1.rt"])
         
-        loop_n_1[iterations_4] = np.mean(df_ot_1_spec_loop["resp1.rt"]) #loop with its response value
-        loop_n_2[iterations_4] = np.mean(df_ot_1_sub_loop["resp1.rt"])
-        loop_n_3[iterations_4] = np.mean(df_ot_1_rule_loop["resp1.rt"])
-        loop_n_4[iterations_4] = np.mean(df_ot_1_gen_loop["resp1.rt"])
+        loop_n_1[iterations] = np.mean(df_ot_1_spec_loop["resp1.rt"]) #loop with its response value
+        loop_n_2[iterations] = np.mean(df_ot_1_sub_loop["resp1.rt"])
+        loop_n_3[iterations] = np.mean(df_ot_1_rule_loop["resp1.rt"])
+        loop_n_4[iterations] = np.mean(df_ot_1_gen_loop["resp1.rt"])
     
     df_OT_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
     df_OT_spec_per_loop = df_OT_spec_per_loop.transpose()
@@ -250,21 +268,21 @@ for UPDATED_file_tr in UPDATED_files_tr:
     df_training_2.dropna(how='all', axis=1)
     Total_resp_Seq_2 = df_training_2["resp_total_corr"].sum()
     
-    for iterations_2 in range(0,6):
-        df_training_2_loop = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations_2]
+    for iterations in range(0,6):
+        df_training_2_loop = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
         Total_resp_Seq_loop = df_training_2_loop["resp_total_corr"].sum()
         
-        loop_n_0[iterations_2] = df_training_2_loop["resp_total_corr"].sum()
+        loop_n_0[iterations] = df_training_2_loop["resp_total_corr"].sum()
        
         df_tr_2_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")]
         df_tr_2_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
         df_tr_2_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
         df_tr_2_gen_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "general")]
           
-        loop_n_1[iterations_2] = df_tr_2_spec_loop["resp_total_corr"].sum() #loop with its response value
-        loop_n_2[iterations_2] = df_tr_2_sub_loop["resp_total_corr"].sum()
-        loop_n_3[iterations_2] = df_tr_2_rule_loop["resp_total_corr"].sum()
-        loop_n_4[iterations_2] = df_tr_2_gen_loop["resp_total_corr"].sum()
+        loop_n_1[iterations] = df_tr_2_spec_loop["resp_total_corr"].sum() #loop with its response value
+        loop_n_2[iterations] = df_tr_2_sub_loop["resp_total_corr"].sum()
+        loop_n_3[iterations] = df_tr_2_rule_loop["resp_total_corr"].sum()
+        loop_n_4[iterations] = df_tr_2_gen_loop["resp_total_corr"].sum()
     
              
     df_corr_Seq_per_loop_b = pd.DataFrame.from_dict(loop_n_0,  orient='index')
@@ -285,11 +303,7 @@ for UPDATED_file_tr in UPDATED_files_tr:
     
     df_corr_Sb_gen_per_loop = pd.DataFrame.from_dict(loop_n_4,  orient='index')
     df_corr_Sb_gen_per_loop = df_corr_Sb_gen_per_loop.transpose()
-    df_corr_Sb_gen_per_loop.columns = ["Corr_Sb_gen1_1", "Corr_Sb_gen1_2", "Corr_Sb_gen1_3", "Corr_Sb_gen1_4", "Corr_Sb_gen1_5", "Corr_Sb_gen1_6"]
-   
-    print(df_corr_Sb_rule_per_loop)
-    print(df_corr_Sb_gen_per_loop)
-   
+    df_corr_Sb_gen_per_loop.columns = ["Corr_Sb_gen1_1", "Corr_Sb_gen1_2", "Corr_Sb_gen1_3", "Corr_Sb_gen1_4", "Corr_Sb_gen1_5", "Corr_Sb_gen1_6"]   
     
     loop_n_1.clear() #empty the previous dictionary
     loop_n_2.clear()
@@ -314,8 +328,8 @@ for UPDATED_file_tr in UPDATED_files_tr:
     RT_Gen_Tot_Tr2 = np.mean(df_tr_2_gen_tot["resp_total_time"])
 
     # RT for each loop TR2
-    for iterations_5 in range(0,6):
-        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations_5]
+    for iterations in range(0,6):
+        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
         df_tr_2_spec_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "spec")]
         df_tr_2_sub_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "subrule")]
         df_tr_2_rule_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "rule")]
@@ -326,10 +340,10 @@ for UPDATED_file_tr in UPDATED_files_tr:
         RT_Rule_loop_Tr2 = np.mean(df_tr_2_rule_loop["resp_total_time"])
         RT_Gen_loop_Tr2 = np.mean(df_tr_2_gen_loop["resp_total_time"])
         
-        loop_n_1[iterations_5] = np.mean(df_tr_2_spec_loop["resp_total_time"]) #loop with its response value
-        loop_n_2[iterations_5] = np.mean(df_tr_2_sub_loop["resp_total_time"])
-        loop_n_3[iterations_5] = np.mean(df_tr_2_rule_loop["resp_total_time"]) #loop with its response value
-        loop_n_4[iterations_5] = np.mean(df_tr_2_gen_loop["resp_total_time"])
+        loop_n_1[iterations] = np.mean(df_tr_2_spec_loop["resp_total_time"]) #loop with its response value
+        loop_n_2[iterations] = np.mean(df_tr_2_sub_loop["resp_total_time"])
+        loop_n_3[iterations] = np.mean(df_tr_2_rule_loop["resp_total_time"]) #loop with its response value
+        loop_n_4[iterations] = np.mean(df_tr_2_gen_loop["resp_total_time"])
     
     df_RT2_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
     df_RT2_spec_per_loop = df_RT2_spec_per_loop.transpose()
@@ -366,8 +380,8 @@ for UPDATED_file_tr in UPDATED_files_tr:
     OT_Gen_Tot_Tr2 = np.mean(df_ot_2_gen_tot["resp1b.rt"])
     
     # OT for each loop TR2
-    for iterations_6 in range(0,6):
-        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations_6]
+    for iterations in range(0,6):
+        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
         df_ot_2_spec_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "spec")]
         df_ot_2_sub_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "subrule")]
         df_ot_2_rule_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "rule")]
@@ -378,10 +392,10 @@ for UPDATED_file_tr in UPDATED_files_tr:
         OT_Rule_loop_Tr2 = np.mean(df_ot_2_rule_loop["resp1b.rt"])
         OT_Gen_loop_Tr2 = np.mean(df_ot_2_gen_loop["resp1b.rt"])
         
-        loop_n_1[iterations_6] = np.mean(df_ot_2_spec_loop["resp1b.rt"]) #loop with its response value
-        loop_n_2[iterations_6] = np.mean(df_ot_2_sub_loop["resp1b.rt"])
-        loop_n_3[iterations_6] = np.mean(df_ot_2_rule_loop["resp1b.rt"])
-        loop_n_4[iterations_6] = np.mean(df_ot_2_gen_loop["resp1b.rt"])
+        loop_n_1[iterations] = np.mean(df_ot_2_spec_loop["resp1b.rt"]) #loop with its response value
+        loop_n_2[iterations] = np.mean(df_ot_2_sub_loop["resp1b.rt"])
+        loop_n_3[iterations] = np.mean(df_ot_2_rule_loop["resp1b.rt"])
+        loop_n_4[iterations] = np.mean(df_ot_2_gen_loop["resp1b.rt"])
     
     df_OT2_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
     df_OT2_spec_per_loop = df_OT2_spec_per_loop.transpose()
@@ -419,7 +433,20 @@ for UPDATED_file_tr in UPDATED_files_tr:
 
     result["Corr_R_Tot"] = Corr_R_Tot
     result["Corr_S1_Tot"] = Corr_S_Tot
+    
+    result["Corr_R_Tot_wo"] = Corr_R_Tot_wo
+    result["Corr_S1_Tot_wo"] = Corr_S_Tot_wo
+    
+    result["Corr_R_spec1"] = df_corr_R_spec_per_loop.sum(axis=1)
+    result["Corr_R_sub1"] = df_corr_R_sub_per_loop.sum(axis=1)
+    result["Corr_R_rule1"] = df_corr_R_rule_per_loop.sum(axis=1)
+    result["Corr_R_gen1"] = df_corr_R_gen_per_loop.sum(axis=1)
 
+    result["Corr_S_spec1"] = df_corr_S_spec_per_loop.sum(axis=1)
+    result["Corr_S_sub1"] = df_corr_S_sub_per_loop.sum(axis=1)
+    result["Corr_S_rule1"] = df_corr_S_rule_per_loop.sum(axis=1)
+    result["Corr_S_gen1"] = df_corr_S_gen_per_loop.sum(axis=1)    
+    
     result["Total_S2_Tot"] = Total_resp_Seq_2
 
     result["RT_Spec_Tot_Tr1"] = RT_Spec_Tot_Tr1
@@ -447,8 +474,8 @@ for UPDATED_file_tr in UPDATED_files_tr:
      
 columns_names = list(df_result_tr.columns.values.tolist())
 
-#with open('columns_names.txt', 'w') as f:
-#    for columns_name in columns_names:
-#        print >> f, columns_name
+with open('columns_names.txt', 'w') as f:
+    for columns_name in columns_names:
+        print >> f, columns_name
 
 df_result_tr.to_csv("results.csv", index = False, header=True)
