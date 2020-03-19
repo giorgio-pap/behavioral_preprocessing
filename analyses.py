@@ -7,26 +7,37 @@ data_folder_training = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MR
 data_folder_test = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_test_backup/data/"
 
 df_result_tr = pd.DataFrame([]) #empty dataframe for result file
+df_result_te = pd.DataFrame([])
 
 #read all the files in a folders and creat a list
 filenames_tr = os.listdir(data_folder_training)
+filenames_te = os.listdir(data_folder_test)
 
 #create a list only with files UPDATED
 UPDATED_files_tr = []
+UPDATED_files_te = []
 
 for filename_tr in filenames_tr:
     if filename_tr.endswith("UPDATED.csv"):
         UPDATED_files_tr.append(filename_tr)
+for filename_te in filenames_te:
+    if filename_te.endswith("UPDATED.csv"):
+        UPDATED_files_te.append(filename_te)
+        
+UPDATED_files_tr = sorted(UPDATED_files_tr)
+UPDATED_files_te = sorted(UPDATED_files_te)
 
 #extract the number of the participants
 pattern = re.compile(r'(\d*)_Mental')
 participant_numbers =  ["; ".join(pattern.findall(item)) for item in UPDATED_files_tr]
 
+
 #read all the UPDATED files one at the time
 for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (number)
-    participant_number = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_tr)]
-    str_number = ' '.join(map(str, participant_number)) 
     
+    participant_number_tr = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_tr)]
+    str_number = ' '.join(map(str, participant_number_tr)) 
+
     df_tr = pd.read_csv(UPDATED_file_tr,  header=0)
     
     df_exp_fil_trials = df_tr.loc[(df_tr['trial_type'] == "experimental")|(df_tr['trial_type'] == "filler")]
@@ -268,6 +279,11 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     df_training_2.dropna(how='all', axis=1)
     Total_resp_Seq_2 = df_training_2["resp_total_corr"].sum()
     
+    df_training_2_wo = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] >= 0]
+    df_training_2_wo = df_training_2_wo.drop(df_training_1[df_training_1['trial_type'] == "filler"].index)
+    Corr_S2_Tot_wo = df_training_2_wo["resp_total_corr"].sum() #number of correct sequences (without fillers) - all loops
+    
+    
     for iterations in range(0,6):
         df_training_2_loop = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
         Total_resp_Seq_loop = df_training_2_loop["resp_total_corr"].sum()
@@ -287,23 +303,23 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
              
     df_corr_Seq_per_loop_b = pd.DataFrame.from_dict(loop_n_0,  orient='index')
     df_corr_Seq_per_loop_b = df_corr_Seq_per_loop_b.transpose()
-    df_corr_Seq_per_loop_b.columns = ["corr_Sb_1", "corr_Sb_2", "corr_Sb_3", "corr_Sb_4", "corr_Sb_5", "corr_Sb_6"]    
+    df_corr_Seq_per_loop_b.columns = ["corr_S2_1", "corr_S2_2", "corr_S2_3", "corr_S2_4", "corr_S2_5", "corr_S2_6"]    
    
-    df_corr_Sb_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
-    df_corr_Sb_spec_per_loop = df_corr_Sb_spec_per_loop.transpose()
-    df_corr_Sb_spec_per_loop.columns = ["Corr_Sb_spec1_1", "Corr_Sb_spec1_2", "Corr_Sb_spec1_3", "Corr_Sb_spec1_4", "Corr_Sb_spec1_5", "Corr_Sb_spec1_6"]
+    df_corr_S2_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
+    df_corr_S2_spec_per_loop = df_corr_S2_spec_per_loop.transpose()
+    df_corr_S2_spec_per_loop.columns = ["Corr_S_spec2_1", "Corr_S_spec2_2", "Corr_S_spec2_3", "Corr_S_spec2_4", "Corr_S_spec2_5", "Corr_S_spec2_6"]
     
-    df_corr_Sb_sub_per_loop = pd.DataFrame.from_dict(loop_n_2,  orient='index')
-    df_corr_Sb_sub_per_loop = df_corr_Sb_sub_per_loop.transpose()
-    df_corr_Sb_sub_per_loop.columns = ["Corr_Sb_sub1_1", "Corr_Sb_sub1_2", "Corr_Sb_sub1_3", "Corr_Sb_sub1_4", "Corr_Sb_sub1_5", "Corr_Sb_sub1_6"]
+    df_corr_S2_sub_per_loop = pd.DataFrame.from_dict(loop_n_2,  orient='index')
+    df_corr_S2_sub_per_loop = df_corr_S2_sub_per_loop.transpose()
+    df_corr_S2_sub_per_loop.columns = ["Corr_S_sub2_1", "Corr_S_sub2_2", "Corr_S_sub2_3", "Corr_S_sub2_4", "Corr_S_sub2_5", "Corr_S_sub2_6"]
     
-    df_corr_Sb_rule_per_loop = pd.DataFrame.from_dict(loop_n_3,  orient='index')
-    df_corr_Sb_rule_per_loop = df_corr_Sb_rule_per_loop.transpose()
-    df_corr_Sb_rule_per_loop.columns = ["Corr_Sb_rule1_1", "Corr_Sb_rule1_2", "Corr_Sb_rule1_3", "Corr_Sb_rule1_4", "Corr_Sb_rule1_5", "Corr_Sb_rule1_6"]
+    df_corr_S2_rule_per_loop = pd.DataFrame.from_dict(loop_n_3,  orient='index')
+    df_corr_S2_rule_per_loop = df_corr_S2_rule_per_loop.transpose()
+    df_corr_S2_rule_per_loop.columns = ["Corr_S_rule2_1", "Corr_S_rule2_2", "Corr_S_rule2_3", "Corr_S_rule2_4", "Corr_S_rule2_5", "Corr_S_rule2_6"]
     
-    df_corr_Sb_gen_per_loop = pd.DataFrame.from_dict(loop_n_4,  orient='index')
-    df_corr_Sb_gen_per_loop = df_corr_Sb_gen_per_loop.transpose()
-    df_corr_Sb_gen_per_loop.columns = ["Corr_Sb_gen1_1", "Corr_Sb_gen1_2", "Corr_Sb_gen1_3", "Corr_Sb_gen1_4", "Corr_Sb_gen1_5", "Corr_Sb_gen1_6"]   
+    df_corr_S2_gen_per_loop = pd.DataFrame.from_dict(loop_n_4,  orient='index')
+    df_corr_S2_gen_per_loop = df_corr_S2_gen_per_loop.transpose()
+    df_corr_S2_gen_per_loop.columns = ["Corr_S_gen2_1", "Corr_S_gen2_2", "Corr_S_gen2_3", "Corr_S_gen2_4", "Corr_S_gen2_5", "Corr_S_gen2_6"]   
     
     loop_n_1.clear() #empty the previous dictionary
     loop_n_2.clear()
@@ -407,7 +423,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     
     df_OT2_rule_per_loop = pd.DataFrame.from_dict(loop_n_3,  orient='index')
     df_OT2_rule_per_loop = df_OT2_rule_per_loop.transpose()
-    df_OT2_rule_per_loop.columns = ["OT_rule2_1", "OT_rule_2", "OT_rule_3", "OT_rule_4", "OT_rule_5", "OT_rule2_6"]
+    df_OT2_rule_per_loop.columns = ["OT_rule2_1", "OT_rule2_2", "OT_rule2_3", "OT_rule2_4", "OT_rule2_5", "OT_rule2_6"]
     
     df_OT2_gen_per_loop = pd.DataFrame.from_dict(loop_n_4,  orient='index')
     df_OT2_gen_per_loop = df_OT2_gen_per_loop.transpose()
@@ -426,10 +442,10 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
                         df_OT_rule_per_loop,df_OT_gen_per_loop, df_RT2_spec_per_loop, 
                         df_RT2_sub_per_loop, df_RT2_rule_per_loop,df_RT2_gen_per_loop, 
                         df_OT2_spec_per_loop, df_OT2_sub_per_loop, df_OT2_rule_per_loop,
-                        df_OT2_gen_per_loop, df_corr_Sb_spec_per_loop, df_corr_Sb_sub_per_loop, 
-                        df_corr_Sb_rule_per_loop, df_corr_Sb_gen_per_loop], axis=1, sort=False)
+                        df_OT2_gen_per_loop, df_corr_S2_spec_per_loop, df_corr_S2_sub_per_loop, 
+                        df_corr_S2_rule_per_loop, df_corr_S2_gen_per_loop], axis=1, sort=False)
     
-    result["Subj"] = participant_number
+    result["Subj_tr"] = participant_number_tr
 
     result["Corr_R_Tot"] = Corr_R_Tot
     result["Corr_S1_Tot"] = Corr_S_Tot
@@ -447,31 +463,64 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     result["Corr_S_rule1"] = df_corr_S_rule_per_loop.sum(axis=1)
     result["Corr_S_gen1"] = df_corr_S_gen_per_loop.sum(axis=1)    
     
-    result["Total_S2_Tot"] = Total_resp_Seq_2
-
-    result["RT_Spec_Tot_Tr1"] = RT_Spec_Tot_Tr1
-    result["RT_Sub_Tot_Tr1"] = RT_Sub_Tot_Tr1
-    result["RT_Rule_Tot_Tr1"] = RT_Rule_Tot_Tr1
-    result["RT_Gen_Tot_Tr1"] = RT_Gen_Tot_Tr1
+    result["Corr_S2_Tot"] = Total_resp_Seq_2
+    result["Corr_S2_Tot_wo"] = Corr_S2_Tot_wo
     
-    result["OT_Spec_Tot_Tr1"] = OT_Spec_Tot_Tr1
-    result["OT_Sub_Tot_Tr1"] = OT_Sub_Tot_Tr1
-    result["OT_Rule_Tot_Tr1"] = OT_Rule_Tot_Tr1
-    result["OT_Gen_Tot_Tr1"] = OT_Gen_Tot_Tr1        
-
-    result["RT_Spec_Tot_Tr2"] = RT_Spec_Tot_Tr2
-    result["RT_Sub_Tot_Tr2"] = RT_Sub_Tot_Tr2
-    result["RT_Rule_Tot_Tr2"] = RT_Rule_Tot_Tr2
-    result["RT_Gen_Tot_Tr2"] = RT_Gen_Tot_Tr2
+    result["RT_spec1_Tot"] = RT_Spec_Tot_Tr1
+    result["RT_sub1_Tot"] = RT_Sub_Tot_Tr1
+    result["RT_rule1_Tot"] = RT_Rule_Tot_Tr1
+    result["RT_gen1_Tot"] = RT_Gen_Tot_Tr1
     
-    result["OT_Spec_Tot_Tr2"] = OT_Spec_Tot_Tr2
-    result["OT_Sub_Tot_Tr2"] = OT_Sub_Tot_Tr2
-    result["OT_Rule_Tot_Tr2"] = OT_Rule_Tot_Tr2
-    result["OT_Gen_Tot_Tr2"] = OT_Gen_Tot_Tr2     
+    result["OT_spec1_Tot"] = OT_Spec_Tot_Tr1
+    result["OT_sub1_Tot"] = OT_Sub_Tot_Tr1
+    result["OT_rule1_Tot"] = OT_Rule_Tot_Tr1
+    result["OT_gen1_Tot"] = OT_Gen_Tot_Tr1        
+
+
+    result["RT_spec2_Tot"] = RT_Spec_Tot_Tr2
+    result["RT_sub2_Tot"] = RT_Sub_Tot_Tr2
+    result["RT_rule2_Tot"] = RT_Rule_Tot_Tr2
+    result["RT_gen2_Tot"] = RT_Gen_Tot_Tr2
+    
+    result["OT_spec2_Tot"] = OT_Spec_Tot_Tr2
+    result["OT_sub2_Tot"] = OT_Sub_Tot_Tr2
+    result["OT_rule2_Tot"] = OT_Rule_Tot_Tr2
+    result["OT_gen2_Tot"] = OT_Gen_Tot_Tr2     
+    
+    result["Corr_S_spec2"] = df_corr_S2_spec_per_loop.sum(axis=1)
+    result["Corr_S_sub2"] = df_corr_S2_sub_per_loop.sum(axis=1)
+    result["Corr_S_rule2"] = df_corr_S2_rule_per_loop.sum(axis=1)
+    result["Corr_S_gen2"] = df_corr_S2_gen_per_loop.sum(axis=1)    
     
     df_result_tr = df_result_tr.append(result)
     
-     
+    
+###############################
+############ TEST ############
+##############################
+    
+pattern = re.compile(r'(\d*)_Mental')
+participant_numbers =  ["; ".join(pattern.findall(item)) for item in UPDATED_files_te]
+
+for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (number)
+    
+    participant_number_te = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_te)]
+    str_number = ' '.join(map(str, participant_number_te))
+   
+    
+    df_te = pd.read_csv(data_folder_test + UPDATED_file_te,  header=0)
+    df_exp_fil_trials_te = df_te.loc[(df_te['trial_type'] == "experimental")|(df_te['trial_type'] == "filler")]
+    df_exp_fil_trials_te = df_exp_fil_trials_te.loc[df_exp_fil_trials_te['file_n'] >= 1]
+
+    
+    
+    
+    #result_2["Subj_te"] = participant_number_te
+    #df_result_te = df_result_te.append(result_te)
+####################################
+############ END SCRIPT ############
+###################################   
+    
 columns_names = list(df_result_tr.columns.values.tolist())
 
 with open('columns_names.txt', 'w') as f:
