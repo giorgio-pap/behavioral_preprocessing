@@ -638,7 +638,7 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
         
     # OT for each loop TE
     for iterations in range(1,7):
-        df_te_loop = df_te_loop.loc[df_te_loop['file_n'] == iterations]
+        df_te_loop = df_te.loc[df_te['file_n'] == iterations]
         df_ot_te_spec_loop = df_te_loop.loc[(df_te_loop['conditions'] == "spec")]
         df_ot_te_sub_loop = df_te_loop.loc[(df_te_loop['conditions'] == "subrule")]
         df_ot_te_rule_loop = df_te_loop.loc[(df_te_loop['conditions'] == "rule")]
