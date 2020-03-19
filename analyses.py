@@ -84,10 +84,10 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     #FILLER TRIALS ARE NOT CONSIDERED ANYMORE
     for iterations in range(0,6):
         df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
-        df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")]
-        df_tr_1_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
-        df_tr_1_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
-        df_tr_1_gen_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "general")]
+        df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "spec")]
+        df_tr_1_sub_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "subrule")]
+        df_tr_1_rule_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "rule")]
+        df_tr_1_gen_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "general")]
         
         Corr_R_Spec_loop_Tr1 = df_tr_1_spec_loop["resp_R.corr"].sum()
         Corr_R_Sub_loop_Tr1 = df_tr_1_sub_loop["resp_R.corr"].sum()
@@ -286,14 +286,14 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     
     for iterations in range(0,6):
         df_training_2_loop = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
-        Total_resp_Seq_loop = df_training_2_loop["resp_total_corr"].sum()
+        Total_resp_Seq_loop_te = df_training_2_loop["resp_total_corr"].sum()
         
         loop_n_0[iterations] = df_training_2_loop["resp_total_corr"].sum()
        
-        df_tr_2_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")]
-        df_tr_2_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
-        df_tr_2_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
-        df_tr_2_gen_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "general")]
+        df_tr_2_spec_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "spec")]
+        df_tr_2_sub_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "subrule")]
+        df_tr_2_rule_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "rule")]
+        df_tr_2_gen_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "general")]
           
         loop_n_1[iterations] = df_tr_2_spec_loop["resp_total_corr"].sum() #loop with its response value
         loop_n_2[iterations] = df_tr_2_sub_loop["resp_total_corr"].sum()
@@ -346,10 +346,11 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     # RT for each loop TR2
     for iterations in range(0,6):
         df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
-        df_tr_2_spec_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "spec")]
-        df_tr_2_sub_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "subrule")]
-        df_tr_2_rule_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "rule")]
-        df_tr_2_gen_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "general")]
+        
+        df_tr_2_spec_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "spec")]
+        df_tr_2_sub_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "subrule")]
+        df_tr_2_rule_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "rule")]
+        df_tr_2_gen_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "general")]
         
         RT_Spec_loop_Tr2 = np.mean(df_tr_2_spec_loop["resp_total_time"])
         RT_Sub_loop_Tr2 = np.mean(df_tr_2_sub_loop["resp_total_time"])
@@ -397,11 +398,12 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     
     # OT for each loop TR2
     for iterations in range(0,6):
-        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
-        df_ot_2_spec_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "spec")]
-        df_ot_2_sub_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "subrule")]
-        df_ot_2_rule_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "rule")]
-        df_ot_2_gen_loop = df_training_2_loop.loc[(df_training_2['conditions'] == "general")]
+        df_training_2_loop = df_training_2.loc[df_training_2['repeat_training_loop1b.thisRepN'] == iterations]
+        
+        df_ot_2_spec_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "spec")]
+        df_ot_2_sub_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "subrule")]
+        df_ot_2_rule_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "rule")]
+        df_ot_2_gen_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "general")]
         
         OT_Spec_loop_Tr2 = np.mean(df_ot_2_spec_loop["resp1b.rt"])
         OT_Sub_loop_Tr2 = np.mean(df_ot_2_sub_loop["resp1b.rt"])
@@ -428,7 +430,8 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     df_OT2_gen_per_loop = pd.DataFrame.from_dict(loop_n_4,  orient='index')
     df_OT2_gen_per_loop = df_OT2_gen_per_loop.transpose()
     df_OT2_gen_per_loop.columns = ["OT_gen2_1", "OT_gen2_2", "OT_gen2_3", "OT_gen2_4", "OT_gen2_5", "OT_gen2_6"]
-     
+
+    loop_n_0.clear()      
     loop_n_1.clear() 
     loop_n_2.clear()
     loop_n_3.clear() 
@@ -505,26 +508,210 @@ participant_numbers =  ["; ".join(pattern.findall(item)) for item in UPDATED_fil
 for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (number)
     
     participant_number_te = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_te)]
-    str_number = ' '.join(map(str, participant_number_te))
+    str_number_te = ' '.join(map(str, participant_number_te))
    
     
     df_te = pd.read_csv(data_folder_test + UPDATED_file_te,  header=0)
-    df_exp_fil_trials_te = df_te.loc[(df_te['trial_type'] == "experimental")|(df_te['trial_type'] == "filler")]
-    df_exp_fil_trials_te = df_exp_fil_trials_te.loc[df_exp_fil_trials_te['file_n'] >= 1]
+    df_te = df_te.loc[(df_te['trial_type'] == "experimental")|(df_te['trial_type'] == "filler")]
+    Corr_ST_Tot = df_te["resp_total_corr"].sum()      
+
+    df_te_wo = df_te.loc[df_te['file_n'] >= 1]
+    df_te_wo = df_te_wo.drop(df_te_wo[df_te_wo['trial_type'] == "filler"].index)
+    Corr_ST_Tot_wo = df_te_wo["resp_total_corr"].sum() 
+    
+    df_te = df_te.loc[df_te['file_n'] >= 1]
+
+    for iterations in range(1,7):
+        df_te_loop = df_te.loc[df_te['file_n'] == iterations]
+        
+        Total_resp_Seq_loop_te = df_te_loop["resp_total_corr"].sum()
+
+        loop_n_0[iterations] = df_te_loop["resp_total_corr"].sum()
+       
+        df_te_spec_loop = df_te_loop.loc[(df_te_loop['conditions'] == "spec")]
+        df_te_sub_loop = df_te_loop.loc[(df_te_loop['conditions'] == "subrule")]
+        df_te_rule_loop = df_te_loop.loc[(df_te_loop['conditions'] == "rule")]
+        df_te_gen_loop = df_te_loop.loc[(df_te_loop['conditions'] == "general")]
+          
+        loop_n_1[iterations] = df_te_spec_loop["resp_total_corr"].sum() #loop with its response value
+        loop_n_2[iterations] = df_te_sub_loop["resp_total_corr"].sum()
+        loop_n_3[iterations] = df_te_rule_loop["resp_total_corr"].sum()
+        loop_n_4[iterations] = df_te_gen_loop["resp_total_corr"].sum()
+    
+         
+    df_corr_Seq_per_loop_te = pd.DataFrame.from_dict(loop_n_0,  orient='index')
+    df_corr_Seq_per_loop_te = df_corr_Seq_per_loop_te.transpose()
+    df_corr_Seq_per_loop_te.columns = ["corr_ST_1", "corr_ST_2", "corr_ST_3", "corr_ST_4", "corr_ST_5", "corr_ST_6"]    
+   
+    df_corr_ST_spec_per_loop_te = pd.DataFrame.from_dict(loop_n_1,  orient='index')
+    df_corr_ST_spec_per_loop_te = df_corr_ST_spec_per_loop_te.transpose()
+    df_corr_ST_spec_per_loop_te.columns = ["Corr_ST_spec_1", "Corr_ST_spec_2", "Corr_ST_spec_3", "Corr_ST_spec_4", "Corr_ST_spec_5", "Corr_ST_spec_6"]
+    
+    df_corr_ST_sub_per_loop_te = pd.DataFrame.from_dict(loop_n_2,  orient='index')
+    df_corr_ST_sub_per_loop_te = df_corr_ST_sub_per_loop_te.transpose()
+    df_corr_ST_sub_per_loop_te.columns = ["Corr_ST_sub_1", "Corr_ST_sub_2", "Corr_ST_sub_3", "Corr_ST_sub_4", "Corr_ST_sub_5", "Corr_ST_sub_6"]
+    
+    df_corr_ST_rule_per_loop_te = pd.DataFrame.from_dict(loop_n_3,  orient='index')
+    df_corr_ST_rule_per_loop_te = df_corr_ST_rule_per_loop_te.transpose()
+    df_corr_ST_rule_per_loop_te.columns = ["Corr_ST_rule_1", "Corr_ST_rule_2", "Corr_ST_rule_3", "Corr_ST_rule_4", "Corr_ST_rule_5", "Corr_ST_rule_6"]
+    
+    df_corr_ST_gen_per_loop_te = pd.DataFrame.from_dict(loop_n_4,  orient='index')
+    df_corr_ST_gen_per_loop_te = df_corr_ST_gen_per_loop_te.transpose()
+    df_corr_ST_gen_per_loop_te.columns = ["Corr_ST_gen_1", "Corr_ST_gen_2", "Corr_ST_gen_3", "Corr_ST_gen_4", "Corr_ST_gen_5", "Corr_ST_gen_6"]   
+    
+    loop_n_0.clear()
+    loop_n_1.clear() #empty the previous dictionary
+    loop_n_2.clear()
+    loop_n_3.clear() 
+    loop_n_4.clear()    
+    
+    #Response Time RT TEST
+    #clean the dataset and remove filler and incorrect trials
+    df_te = df_te.drop(df_te[df_te['trial_type'] == "filler"].index)
+    df_te = df_te.drop(df_te[df_te['resp_total_corr'] == 0].index)
+    
+    df_te_spec_tot = df_te.loc[(df_te['conditions'] == "spec")]
+    RT_Spec_Tot_Te = np.mean(df_te_spec_tot["resp_total_time"])
+    
+    df_te_sub_tot = df_te.loc[(df_te['conditions'] == "subrule")]
+    RT_Sub_Tot_Te = np.mean(df_te_sub_tot["resp_total_time"])
+
+    df_te_rule_tot = df_te.loc[(df_te['conditions'] == "rule")]
+    RT_Rule_Tot_Te = np.mean(df_te_rule_tot["resp_total_time"])
+
+    df_te_gen_tot = df_te.loc[(df_te['conditions'] == "general")]
+    RT_Gen_Tot_Te = np.mean(df_te_gen_tot["resp_total_time"])
 
     
+    # RT for each loop TE
+    for iterations in range(1,7):
+        df_te_loop = df_te.loc[df_te['file_n'] == iterations]
+        
+        df_te_spec_loop = df_te_loop.loc[(df_te_loop['conditions'] == "spec")]
+        df_te_sub_loop = df_te_loop.loc[(df_te_loop['conditions'] == "subrule")]
+        df_te_rule_loop = df_te_loop.loc[(df_te_loop['conditions'] == "rule")]
+        df_te_gen_loop = df_te_loop.loc[(df_te_loop['conditions'] == "general")]
+       
+        RT_Spec_loop_Te = np.mean(df_te_spec_loop["resp_total_time"])
+        RT_Sub_loop_Te = np.mean(df_te_sub_loop["resp_total_time"])
+        RT_Rule_loop_Te = np.mean(df_te_rule_loop["resp_total_time"])
+        RT_Gen_loop_Te = np.mean(df_te_gen_loop["resp_total_time"])
+        
+        loop_n_1[iterations] = np.mean(df_te_spec_loop["resp_total_time"]) #loop with its response value
+        loop_n_2[iterations] = np.mean(df_te_sub_loop["resp_total_time"])
+        loop_n_3[iterations] = np.mean(df_te_rule_loop["resp_total_time"])
+        loop_n_4[iterations] = np.mean(df_te_gen_loop["resp_total_time"])
     
+    df_RT_spec_per_loop_te = pd.DataFrame.from_dict(loop_n_1,  orient='index')
+    df_RT_spec_per_loop_te = df_RT_spec_per_loop_te.transpose()
+    df_RT_spec_per_loop_te.columns = ["RT_specT_1", "RT_specT_2", "RT_specT_3", "RT_specT_4", "RT_specT_5", "RT_specT_6"]
+ 
+    df_RT_sub_per_loop_te = pd.DataFrame.from_dict(loop_n_2,  orient='index')
+    df_RT_sub_per_loop_te = df_RT_sub_per_loop_te.transpose()
+    df_RT_sub_per_loop_te.columns = ["RT_subT_1", "RT_subT_2", "RT_subT_3", "RT_subT_4", "RT_subT_5", "RT_subT_6"]
     
-    #result_2["Subj_te"] = participant_number_te
-    #df_result_te = df_result_te.append(result_te)
+    df_RT_rule_per_loop_te = pd.DataFrame.from_dict(loop_n_3,  orient='index')
+    df_RT_rule_per_loop_te = df_RT_rule_per_loop_te.transpose()
+    df_RT_rule_per_loop_te.columns = ["RT_ruleT_1", "RT_ruleT_2", "RT_ruleT_3", "RT_ruleT_4", "RT_ruleT_5", "RT_ruleT_6"]
+    
+    df_RT_gen_per_loop_te = pd.DataFrame.from_dict(loop_n_4,  orient='index')
+    df_RT_gen_per_loop_te = df_RT_gen_per_loop_te.transpose()
+    df_RT_gen_per_loop_te.columns = ["RT_genT_1", "RT_genT_2", "RT_genT_3", "RT_genT_4", "RT_genT_5", "RT_genT_6"]
+     
+    loop_n_1.clear()
+    loop_n_2.clear()
+    loop_n_3.clear() 
+    loop_n_4.clear()
+    
+    #Onset Time OT (first press) TE
+    df_ot_te_spec_tot = df_te.loc[(df_te['conditions'] == "spec")]
+    OT_Spec_Tot_Te = np.mean(df_ot_te_spec_tot["resp1.rt"])
+    
+    df_ot_te_sub_tot = df_te.loc[(df_te['conditions'] == "subrule")]
+    OT_Sub_Tot_Te = np.mean(df_ot_te_sub_tot["resp1.rt"])
+
+    df_ot_te_rule_tot = df_te.loc[(df_te['conditions'] == "rule")]
+    OT_Rule_Tot_Te = np.mean(df_ot_te_rule_tot["resp1.rt"])
+
+    df_ot_te_gen_tot = df_te.loc[(df_te['conditions'] == "general")]
+    OT_Gen_Tot_Te = np.mean(df_ot_te_gen_tot["resp1.rt"])
+        
+    # OT for each loop TE
+    for iterations in range(1,7):
+        df_te_loop = df_te_loop.loc[df_te_loop['file_n'] == iterations]
+        df_ot_te_spec_loop = df_te_loop.loc[(df_te_loop['conditions'] == "spec")]
+        df_ot_te_sub_loop = df_te_loop.loc[(df_te_loop['conditions'] == "subrule")]
+        df_ot_te_rule_loop = df_te_loop.loc[(df_te_loop['conditions'] == "rule")]
+        df_ot_te_gen_loop = df_te_loop.loc[(df_te_loop['conditions'] == "general")]
+        
+        OT_Spec_loop_Te = np.mean(df_ot_te_spec_loop["resp1.rt"])
+        OT_Sub_loop_Te = np.mean(df_ot_te_sub_loop["resp1.rt"])
+        OT_Rule_loop_Te = np.mean(df_ot_te_rule_loop["resp1.rt"])
+        OT_Gen_loop_Te = np.mean(df_ot_te_gen_loop["resp1.rt"])
+        
+        loop_n_1[iterations] = np.mean(df_ot_te_spec_loop["resp1.rt"]) #loop with its response value
+        loop_n_2[iterations] = np.mean(df_ot_te_sub_loop["resp1.rt"])
+        loop_n_3[iterations] = np.mean(df_ot_te_rule_loop["resp1.rt"])
+        loop_n_4[iterations] = np.mean(df_ot_te_gen_loop["resp1.rt"])
+    
+    df_OT_spec_per_loop_te = pd.DataFrame.from_dict(loop_n_1,  orient='index')
+    df_OT_spec_per_loop_te = df_OT_spec_per_loop_te.transpose()
+    df_OT_spec_per_loop_te.columns = ["OT_specT_1", "OT_specT_2", "OT_specT_3", "OT_specT_4", "OT_specT_5", "OT_specT_6"]
+    
+    df_OT_sub_per_loop_te = pd.DataFrame.from_dict(loop_n_2,  orient='index')
+    df_OT_sub_per_loop_te = df_OT_sub_per_loop_te.transpose()
+    df_OT_sub_per_loop_te.columns = ["OT_subT_1", "OT_subT_2", "OT_subT_3", "OT_subT_4", "OT_subT_5", "OT_subT_6"]
+    
+    df_OT_rule_per_loop_te = pd.DataFrame.from_dict(loop_n_3,  orient='index')
+    df_OT_rule_per_loop_te = df_OT_rule_per_loop_te.transpose()
+    df_OT_rule_per_loop_te.columns = ["OT_ruleT_1", "OT_ruleT_2", "OT_ruleT_3", "OT_ruleT_4", "OT_ruleT_5", "OT_ruleT_6"]
+    
+    df_OT_gen_per_loop_te = pd.DataFrame.from_dict(loop_n_4,  orient='index')
+    df_OT_gen_per_loop_te = df_OT_gen_per_loop_te.transpose()
+    df_OT_gen_per_loop_te.columns = ["OT_genT_1", "OT_genT_2", "OT_genT_3", "OT_genT_4", "OT_genT_5", "OT_genT_6"]
+     
+    loop_n_1.clear() 
+    loop_n_2.clear()
+    loop_n_3.clear() 
+    loop_n_4.clear()    
+    
+    result_te = pd.concat([df_corr_Seq_per_loop_te, df_corr_ST_spec_per_loop_te, df_corr_ST_sub_per_loop_te, df_corr_ST_rule_per_loop_te, df_corr_ST_gen_per_loop_te,
+                          df_RT_spec_per_loop_te, df_RT_sub_per_loop_te, df_RT_rule_per_loop_te, df_RT_gen_per_loop_te,
+                          df_OT_spec_per_loop_te, df_OT_sub_per_loop_te, df_OT_rule_per_loop_te, df_OT_gen_per_loop_te], axis=1, sort=False)
+
+    result_te["Corr_ST_Tot"] = Corr_ST_Tot
+    result_te["Corr_ST_Tot_wo"] = Corr_ST_Tot_wo
+
+    result_te["Corr_ST_spec"] = df_corr_ST_spec_per_loop_te.sum(axis=1)
+    result_te["Corr_ST_sub"] = df_corr_ST_sub_per_loop_te.sum(axis=1)
+    result_te["Corr_ST_rule"] = df_corr_ST_rule_per_loop_te.sum(axis=1)
+    result_te["Corr_ST_gen"] = df_corr_ST_gen_per_loop_te.sum(axis=1)    
+    
+    result_te["RT_Spec_Tot_Te"] = RT_Spec_Tot_Te
+    result_te["RT_Sub_Tot_Te"] = RT_Sub_Tot_Te
+    result_te["RT_Rule_Tot_Te"] = RT_Rule_Tot_Te
+    result_te["RT_Gen_Tot_Te"] = RT_Gen_Tot_Te
+
+    result_te["OT_Spec_Tot_Te"] = OT_Spec_Tot_Te
+    result_te["OT_Sub_Tot_Te"] = OT_Sub_Tot_Te
+    result_te["OT_Rule_Tot_Te"] = OT_Rule_Tot_Te
+    result_te["oT_Gen_Tot_Te"] = OT_Gen_Tot_Te
+    
+    result_te["Subj_te"] = str_number_te
+    
+    df_result_te = df_result_te.append(result_te)
+
+
 ####################################
 ############ END SCRIPT ############
 ###################################   
     
-columns_names = list(df_result_tr.columns.values.tolist())
+result_total = pd.concat([df_result_tr, df_result_te], axis=1, sort=False)
+
+columns_names = list(result_total.columns.values.tolist())
 
 with open('columns_names.txt', 'w') as f:
     for columns_name in columns_names:
         print >> f, columns_name
 
-df_result_tr.to_csv("results.csv", index = False, header=True)
+result_total.to_csv("results.csv", index = False, header=True)
