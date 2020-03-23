@@ -176,9 +176,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     #Response Time RT TR1
     #clean the dataset and remove filler and incorrect trials
     df_training_1 = df_training_1.drop(df_training_1[df_training_1['trial_type'] == "filler"].index)
-    df_training_1 = df_training_1.drop(df_training_1[df_training_1['resp_total_corr'] == 0].index)
     df_training_1 = df_training_1.loc[(df_training_1['resp_total_corr'] == 1)]
-    
     
     df_tr_1_spec_tot = df_training_1.loc[(df_training_1['conditions'] == "spec")]
     RT_Spec_Tot_Tr1 = np.mean(df_tr_1_spec_tot["resp_total_time"])
@@ -257,6 +255,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     # OT for each loop TR1
     for iterations in range(0,6):
         df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
+        
         df_ot_1_spec_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "spec")]
         df_ot_1_sub_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "subrule")]
         df_ot_1_rule_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "rule")]
@@ -309,7 +308,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     
     df_training_2_wo = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] >= 0]
     df_training_2_wo = df_training_2_wo.loc[df_tr['resp_total_corr'] == 1] 
-    df_training_2_wo = df_training_2_wo.drop(df_training_1[df_training_1['trial_type'] == "filler"].index)
+    df_training_2_wo = df_training_2_wo.drop(df_training_2_wo[df_training_2_wo['trial_type'] == "filler"].index)
     Corr_S2_Tot_wo = df_training_2_wo["resp_total_corr"].sum() #number of correct sequences (without fillers) - all loops
     
     for iterations in range(0,6):
@@ -379,7 +378,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
 
     # RT for each loop TR2
     for iterations in range(0,6):
-        df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
+        df_training_2_loop = df_training_2_wo.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
  
         df_tr_2_spec_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "spec")]
         df_tr_2_sub_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "subrule")]
@@ -438,7 +437,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     
     # OT for each loop TR2
     for iterations in range(0,6):
-        df_training_2_loop = df_training_2.loc[df_training_2['repeat_training_loop1b.thisRepN'] == iterations]
+        df_training_2_loop = df_training_2_wo.loc[df_training_2['repeat_training_loop1b.thisRepN'] == iterations]
         
         df_ot_2_spec_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "spec")]
         df_ot_2_sub_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "subrule")]
@@ -559,27 +558,26 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
     
     participant_number_te = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_te)]
     str_number_te = ' '.join(map(str, participant_number_te))
-   
+    
     
     df_te = pd.read_csv(data_folder_test + UPDATED_file_te,  header=0)
+    df_te = df_te.loc[df_te['file_n'] >= 1]
     df_te = df_te.loc[(df_te['trial_type'] == "experimental")|(df_te['trial_type'] == "filler")]
     Corr_S3_Tot = df_te["resp_total_corr"].sum()      
 
-    df_te_wo = df_te.loc[df_te['file_n'] >= 1]
-    df_te_wo = df_te_wo.drop(df_te_wo[df_te_wo['trial_type'] == "filler"].index)
+    df_te_wo = df_te.loc[(df_te['file_n'] >= 1) & (df_te['trial_type'] == "experimental")]
     Corr_S3_Tot_wo = df_te_wo["resp_total_corr"].sum() 
     
-    df_te = df_te.loc[df_te['file_n'] >= 1]
-    df_te_wo = df_te.loc[(df_te['file_n'] >= 1) & (df_te['trial_type'] == "experimental")]
 
     for iterations in range(1,7):
         df_te_loop = df_te.loc[df_te['file_n'] == iterations]
-        df_te_loop_wo = df_te_wo.loc[df_te['file_n'] == iterations]
+        df_te_loop_wo = df_te_wo.loc[df_te_wo['file_n'] == iterations]
         
         Total_resp_Seq_loop_te = df_te_loop["resp_total_corr"].sum()
 
         loop_n_0[iterations] = df_te_loop["resp_total_corr"].sum()
-       
+        loop_n_5[iterations] = df_te_loop_wo["resp_total_corr"].sum()
+
         df_te_spec_loop = df_te_loop.loc[(df_te_loop['conditions'] == "spec")]
         df_te_sub_loop = df_te_loop.loc[(df_te_loop['conditions'] == "subrule")]
         df_te_rule_loop = df_te_loop.loc[(df_te_loop['conditions'] == "rule")]
@@ -589,7 +587,6 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
         loop_n_2[iterations] = df_te_sub_loop["resp_total_corr"].sum()
         loop_n_3[iterations] = df_te_rule_loop["resp_total_corr"].sum()
         loop_n_4[iterations] = df_te_gen_loop["resp_total_corr"].sum()
-        loop_n_5[iterations] = df_te_loop_wo["resp_total_corr"].sum()
     
          
     df_Corr_S3_per_loop = pd.DataFrame.from_dict(loop_n_0,  orient='index')
@@ -614,7 +611,7 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
              
     df_Corr_S3_per_loop_wo = pd.DataFrame.from_dict(loop_n_5,  orient='index')
     df_Corr_S3_per_loop_wo = df_Corr_S3_per_loop_wo.transpose()
-    df_Corr_S3_per_loop_wo.columns = ["Corr_S3_1", "Corr_S3_2", "Corr_S3_3", "Corr_S3_4", "Corr_S3_5", "Corr_S3_6"]    
+    df_Corr_S3_per_loop_wo.columns = ["Corr_S3_1_wo", "Corr_S3_2_wo", "Corr_S3_3_wo", "Corr_S3_4_wo", "Corr_S3_5_wo", "Corr_S3_6_wo"]
 
     loop_n_0.clear()
     loop_n_1.clear() #empty the previous dictionary
@@ -625,9 +622,9 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
     
     #Response Time RT TEST
     #clean the dataset and remove filler and incorrect trials
-    df_te = df_te.drop(df_te[df_te['trial_type'] == "filler"].index)
-    df_te = df_te.drop(df_te[df_te['resp_total_corr'] == 0].index)
-    
+    df_te = df_te.loc[(df_te['resp_total_corr'] == 1)]
+    df_te = df_te.loc[(df_te['trial_type'] == "experimental")]
+
     df_te_spec_tot = df_te.loc[(df_te['conditions'] == "spec")]
     RT_Spec_Tot_Te = np.mean(df_te_spec_tot["resp_total_time"])
     
@@ -702,6 +699,7 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
     # OT for each loop TE
     for iterations in range(1,7):
         df_te_loop = df_te.loc[df_te['file_n'] == iterations]
+        
         df_ot_te_spec_loop = df_te_loop.loc[(df_te_loop['conditions'] == "spec")]
         df_ot_te_sub_loop = df_te_loop.loc[(df_te_loop['conditions'] == "subrule")]
         df_ot_te_rule_loop = df_te_loop.loc[(df_te_loop['conditions'] == "rule")]
@@ -718,7 +716,6 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
         loop_n_4[iterations] = np.mean(df_ot_te_gen_loop["resp1.rt"])
         loop_n_5[iterations] = np.mean(df_te_loop["resp1.rt"])
 
-    
     df_OT3_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
     df_OT3_spec_per_loop = df_OT3_spec_per_loop.transpose()
     df_OT3_spec_per_loop.columns = ["OT3_spec_1", "OT3_spec_2", "OT3_spec_3", "OT3_spec_4", "OT3_spec_5", "OT3_spec_6"]
@@ -739,7 +736,6 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
     df_OT3_per_loop = df_OT3_per_loop.transpose()
     df_OT3_per_loop.columns = ["OT3_1_Tot", "OT3_2_Tot", "OT3_3_Tot", "OT3_4_Tot", "OT3_5_Tot", "OT3_6_Tot"]
 
-     
     loop_n_1.clear() 
     loop_n_2.clear()
     loop_n_3.clear() 
@@ -778,13 +774,84 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
 ####################################
 ############ END SCRIPT ############
 ###################################   
-    
+
+#training + test    
 result_total = pd.concat([df_result_tr, df_result_te], axis=1, sort=False)
 
-columns_names = list(result_total.columns.values.tolist())
+#reorder all the columns
+result_total = result_total[["Subj_tr" , "Subj_te" , "Group" , "Corr_R_Tot" , "Corr_R_Tot_wo" , "Corr_R_1" , 
+                             "Corr_R_1_wo" , "Corr_R_2" , "Corr_R_2_wo" , "Corr_R_3" , "Corr_R_3_wo" , "Corr_R_4" , 
+                             "Corr_R_4_wo" , "Corr_R_5" , "Corr_R_5_wo" , "Corr_R_6" , "Corr_R_6_wo" , 
+                             "Corr_R_spec_1" , "Corr_R_spec_2" , "Corr_R_spec_3" , "Corr_R_spec_4" , "Corr_R_spec_5" ,
+                             "Corr_R_spec_6" , "Corr_R_spec" , "Corr_R_sub_1" , "Corr_R_sub_2" , "Corr_R_sub_3" , 
+                             "Corr_R_sub_4" , "Corr_R_sub_5" , "Corr_R_sub_6" , "Corr_R_sub" , "Corr_R_rule_1" , 
+                             "Corr_R_rule_2" , "Corr_R_rule_3" , "Corr_R_rule_4" , "Corr_R_rule_5" , 
+                             "Corr_R_rule_6" , "Corr_R_rule" , "Corr_R_gen_1" , "Corr_R_gen_2" , "Corr_R_gen_3" , 
+                             "Corr_R_gen_4" , "Corr_R_gen_5" , "Corr_R_gen_6" , "Corr_R_gen" , "Corr_S1_Tot" , 
+                             "Corr_S1_Tot_wo" , "Corr_S1_1" , "Corr_S1_1_wo" , "Corr_S1_2" , "Corr_S1_2_wo" , 
+                             "Corr_S1_3" , "Corr_S1_3_wo" , "Corr_S1_4" , "Corr_S1_4_wo" , "Corr_S1_5" , 
+                             "Corr_S1_5_wo" , "Corr_S1_6" , "Corr_S1_6_wo" , "Corr_S1_spec_1" , "Corr_S1_spec_2" , 
+                             "Corr_S1_spec_3" , "Corr_S1_spec_4" , "Corr_S1_spec_5" , "Corr_S1_spec_6" , 
+                             "Corr_S1_spec" , "Corr_S1_sub_1" , "Corr_S1_sub_2" , "Corr_S1_sub_3" , "Corr_S1_sub_4" ,
+                             "Corr_S1_sub_5" , "Corr_S1_sub_6" , "Corr_S1_sub" , "Corr_S1_rule_1" , "Corr_S1_rule_2" ,
+                             "Corr_S1_rule_3" , "Corr_S1_rule_4" , "Corr_S1_rule_5" , "Corr_S1_rule_6" , "Corr_S1_rule" ,
+                             "Corr_S1_gen_1" , "Corr_S1_gen_2" , "Corr_S1_gen_3" , "Corr_S1_gen_4" , "Corr_S1_gen_5" , 
+                             "Corr_S1_gen_6" , "Corr_S1_gen" , "RT1_1_Tot" , "RT1_2_Tot" , "RT1_3_Tot" , "RT1_4_Tot" , 
+                             "RT1_5_Tot" , "RT1_6_Tot" , "RT1_spec_1" , "RT1_spec_2" , "RT1_spec_3" , "RT1_spec_4" , 
+                             "RT1_spec_5" , "RT1_spec_6" , "RT1_spec_Tot" , "RT1_sub_1" , "RT1_sub_2" , "RT1_sub_3" , 
+                             "RT1_sub_4" , "RT1_sub_5" , "RT1_sub_6" , "RT1_sub_Tot" , "RT1_rule_1" , "RT1_rule_2" , 
+                             "RT1_rule_3" , "RT1_rule_4" , "RT1_rule_5" , "RT1_rule_6" , "RT1_rule_Tot" , "RT1_gen_1" ,
+                             "RT1_gen_2" , "RT1_gen_3" , "RT1_gen_4" , "RT1_gen_5" , "RT1_gen_6" , "RT1_gen_Tot" , 
+                             "OT1_1_Tot" , "OT1_2_Tot" , "OT1_3_Tot" , "OT1_4_Tot" , "OT1_5_Tot" , "OT1_6_Tot" , 
+                             "OT1_spec_1" , "OT1_spec_2" , "OT1_spec_3" , "OT1_spec_4" , "OT1_spec_5" , "OT1_spec_6" , 
+                             "OT1_spec_Tot" , "OT1_sub_1" , "OT1_sub_2" , "OT1_sub_3" , "OT1_sub_4" , "OT1_sub_5" , 
+                             "OT1_sub_6" , "OT1_sub_Tot" , "OT1_rule_1" , "OT1_rule_2" , "OT1_rule_3" , "OT1_rule_4" , 
+                             "OT1_rule_5" , "OT1_rule_6" , "OT1_rule_Tot" , "OT1_gen_1" , "OT1_gen_2" , "OT1_gen_3" , 
+                             "OT1_gen_4" , "OT1_gen_5" , "OT1_gen_6" , "OT1_gen_Tot" , "Corr_S2_Tot" , "Corr_S2_Tot_wo" , 
+                             "Corr_S2_1" , "Corr_S2_1_wo" , "Corr_S2_2" , "Corr_S2_2_wo" , "Corr_S2_3" , "Corr_S2_3_wo" , 
+                             "Corr_S2_4" , "Corr_S2_4_wo" , "Corr_S2_5" , "Corr_S2_5_wo" , "Corr_S2_6" , "Corr_S2_6_wo" , 
+                             "Corr_S2_spec_1" , "Corr_S2_spec_2" , "Corr_S2_spec_3" , "Corr_S2_spec_4" , "Corr_S2_spec_5" , 
+                             "Corr_S2_spec_6" , "Corr_S2_spec" , "Corr_S2_sub_1" , "Corr_S2_sub_2" , "Corr_S2_sub_3" , 
+                             "Corr_S2_sub_4" , "Corr_S2_sub_5" , "Corr_S2_sub_6" , "Corr_S2_sub" , "Corr_S2_rule_1" ,
+                             "Corr_S2_rule_2" , "Corr_S2_rule_3" , "Corr_S2_rule_4" , "Corr_S2_rule_5" , "Corr_S2_rule_6" , 
+                             "Corr_S2_rule" , "Corr_S2_gen_1" , "Corr_S2_gen_2" , "Corr_S2_gen_3" , "Corr_S2_gen_4" , 
+                             "Corr_S2_gen_5" , "Corr_S2_gen_6" , "Corr_S2_gen" , "RT2_1_Tot" , "RT2_2_Tot" , "RT2_3_Tot" ,
+                             "RT2_4_Tot" , "RT2_5_Tot" , "RT2_6_Tot" , "RT2_spec_1" , "RT2_spec_2" , "RT2_spec_3" , 
+                             "RT2_spec_4" , "RT2_spec_5" , "RT2_spec_6" , "RT2_spec_Tot" , "RT2_sub_1" , "RT2_sub_2" , 
+                             "RT2_sub_3" , "RT2_sub_4" , "RT2_sub_5" , "RT2_sub_6" , "RT2_sub_Tot" , "RT2_rule_1" , 
+                             "RT2_rule_2" , "RT2_rule_3" , "RT2_rule_4" , "RT2_rule_5" , "RT2_rule_6" , "RT2_rule_Tot" , 
+                             "RT2_gen_1" , "RT2_gen_2" , "RT2_gen_3" , "RT2_gen_4" , "RT2_gen_5" , "RT2_gen_6" , 
+                             "RT2_gen_Tot" , "OT2_1_Tot" , "OT2_2_Tot" , "OT2_3_Tot" , "OT2_4_Tot" , "OT2_5_Tot" , 
+                             "OT2_6_Tot" , "OT2_spec_1" , "OT2_spec_2" , "OT2_spec_3" , "OT2_spec_4" , "OT2_spec_5" , 
+                             "OT2_spec_6" , "OT2_spec_Tot" , "OT2_sub_1" , "OT2_sub_2" , "OT2_sub_3" , "OT2_sub_4" , 
+                             "OT2_sub_5" , "OT2_sub_6" , "OT2_sub_Tot" , "OT2_rule_1" , "OT2_rule_2" , "OT2_rule_3" , 
+                             "OT2_rule_4" , "OT2_rule_5" , "OT2_rule_6" , "OT2_rule_Tot" , "OT2_gen_1" , "OT2_gen_2" , 
+                             "OT2_gen_3" , "OT2_gen_4" , "OT2_gen_5" , "OT2_gen_6" , "OT2_gen_Tot" , "Corr_S3_Tot" , 
+                             "Corr_S3_Tot_wo" , "Corr_S3_1" , "Corr_S3_1_wo" , "Corr_S3_2" , "Corr_S3_2_wo" , "Corr_S3_3" , 
+                             "Corr_S3_3_wo" , "Corr_S3_4" , "Corr_S3_4_wo" , "Corr_S3_5" , "Corr_S3_5_wo" , "Corr_S3_6" , 
+                             "Corr_S3_6_wo" , "Corr_S3_spec_1" , "Corr_S3_spec_2" , "Corr_S3_spec_3" , "Corr_S3_spec_4" , 
+                             "Corr_S3_spec_5" , "Corr_S3_spec_6" , "Corr_S3_spec" , "Corr_S3_sub_1" , "Corr_S3_sub_2" , 
+                             "Corr_S3_sub_3" , "Corr_S3_sub_4" , "Corr_S3_sub_5" , "Corr_S3_sub_6" , "Corr_S3_sub" , 
+                             "Corr_S3_rule_1" , "Corr_S3_rule_2" , "Corr_S3_rule_3" , "Corr_S3_rule_4" , "Corr_S3_rule_5" , 
+                             "Corr_S3_rule_6" , "Corr_S3_rule" , "Corr_S3_gen_1" , "Corr_S3_gen_2" , "Corr_S3_gen_3" , 
+                             "Corr_S3_gen_4" , "Corr_S3_gen_5" , "Corr_S3_gen_6" , "Corr_S3_gen" , "RT3_1_Tot" , 
+                             "RT3_2_Tot" , "RT3_3_Tot" , "RT3_4_Tot" , "RT3_5_Tot" , "RT3_6_Tot" , "RT3_spec_1" , 
+                             "RT3_spec_2" , "RT3_spec_3" , "RT3_spec_4" , "RT3_spec_5" , "RT3_spec_6" , "RT3_spec_Tot" , 
+                             "RT3_sub_1" , "RT3_sub_2" , "RT3_sub_3" , "RT3_sub_4" , "RT3_sub_5" , "RT3_sub_6" , 
+                             "RT3_sub_Tot" , "RT3_rule_1" , "RT3_rule_2" , "RT3_rule_3" , "RT3_rule_4" , "RT3_rule_5" , 
+                             "RT3_rule_6" , "RT3_rule_Tot" , "RT3_gen_1" , "RT3_gen_2" , "RT3_gen_3" , "RT3_gen_4" , 
+                             "RT3_gen_5" , "RT3_gen_6" , "RT3_gen_Tot" , "OT3_1_Tot" , "OT3_2_Tot" , "OT3_3_Tot" , 
+                             "OT3_4_Tot" , "OT3_5_Tot" , "OT3_6_Tot" , "OT3_spec_1" , "OT3_spec_2" , "OT3_spec_3" , 
+                             "OT3_spec_4" , "OT3_spec_5" , "OT3_spec_6" , "OT3_spec_Tot" , "OT3_sub_1" , "OT3_sub_2" , 
+                             "OT3_sub_3" , "OT3_sub_4" , "OT3_sub_5" , "OT3_sub_6" , "OT3_sub_Tot" , "OT3_rule_1" , 
+                             "OT3_rule_2" , "OT3_rule_3" , "OT3_rule_4" , "OT3_rule_5" , "OT3_rule_6" , "OT3_rule_Tot" , 
+                             "OT3_gen_1" , "OT3_gen_2" , "OT3_gen_3" , "OT3_gen_4" , "OT3_gen_5" , "OT3_gen_6" , 
+                             "OT3_gen_Tot"]]
 
-with open('columns_names.txt', 'w') as f:
-    for columns_name in columns_names:
-        print >> f, columns_name
+# print name of columns
+#columns_names = list(result_total.columns.values.tolist())
+#with open('columns_names.txt', 'w') as f:
+#    for columns_name in columns_names:
+#        print >> f, columns_name
 
 result_total.to_csv("results.csv", index = False, header=True)
