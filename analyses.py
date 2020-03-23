@@ -49,12 +49,11 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     ##############################
 
     # ALL LOOPS TOGETHER
-    df_training_1 = df_exp_fil_trials.loc[df_tr['repeat_training_loop1.thisRepN'] >= 0]
+    df_training_1 = df_exp_fil_trials.loc[df_exp_fil_trials['repeat_training_loop1.thisRepN'] >= 0]
     Corr_R_Tot = df_training_1["resp_R.corr"].sum() #number of correct relationship answers (incl. fillers) - all loops
     Corr_S_Tot = df_training_1["resp_total_corr"].sum() #number of correct sequences (incl. fillers) - all loops
     
-    df_training_1_wo = df_exp_fil_trials.loc[df_tr['repeat_training_loop1.thisRepN'] >= 0]
-    df_training_1_wo = df_training_1_wo.drop(df_training_1[df_training_1['trial_type'] == "filler"].index)
+    df_training_1_wo = df_exp_fil_trials.loc[(df_exp_fil_trials['repeat_training_loop1.thisRepN'] >= 0) & (df_exp_fil_trials['trial_type'] == "experimental")]
     Corr_R_Tot_wo = df_training_1_wo["resp_R.corr"].sum() #number of correct relationship answers (without fillers) - all loops
     Corr_S_Tot_wo = df_training_1_wo["resp_total_corr"].sum() #number of correct sequences (without fillers) - all loops
     
@@ -65,7 +64,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     loop_n_4 = {}
     
     for iterations in range(0,6):
-        df_training_1_loop = df_exp_fil_trials.loc[df_exp_fil_trials['repeat_training_loop1.thisRepN'] == iterations]
+        df_training_1_loop = df_training_1.loc[df_training_1['repeat_training_loop1.thisRepN'] == iterations]
         Total_resp_R_loop = df_training_1_loop["resp_R.corr"].sum() #number of correct relationship answers (incl. fillers) - all loops
         Total_resp_Seq_loop = df_training_1_loop["resp_total_corr"].sum()
         loop_n_1[iterations] = df_training_1_loop["resp_R.corr"].sum() #loop with its response value
@@ -101,7 +100,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     # Corr_R for each loop TR1
     #FILLER TRIALS ARE NOT CONSIDERED ANYMORE
     for iterations in range(0,6):
-        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
+        df_training_1_loop = df_training_1.loc[(df_training_1['repeat_training_loop1.thisRepN'] == iterations) & (df_training_1['resp_total_corr'] == 1)]
         df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "spec")]
         df_tr_1_sub_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "subrule")]
         df_tr_1_rule_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "rule")]
@@ -136,7 +135,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     
     
     for iterations in range(0,6):
-        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
+        df_training_1_loop = df_training_1.loc[(df_training_1['repeat_training_loop1.thisRepN'] == iterations) & (df_training_1['resp_total_corr'] == 1)]
         df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")] #& (df_training_1['did_get_here'] == 1)]
         df_tr_1_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
         df_tr_1_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
@@ -174,11 +173,12 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     loop_n_3.clear()
     loop_n_4.clear()
     
-    
     #Response Time RT TR1
     #clean the dataset and remove filler and incorrect trials
     df_training_1 = df_training_1.drop(df_training_1[df_training_1['trial_type'] == "filler"].index)
     df_training_1 = df_training_1.drop(df_training_1[df_training_1['resp_total_corr'] == 0].index)
+    df_training_1 = df_training_1.loc[(df_training_1['resp_total_corr'] == 1)]
+    
     
     df_tr_1_spec_tot = df_training_1.loc[(df_training_1['conditions'] == "spec")]
     RT_Spec_Tot_Tr1 = np.mean(df_tr_1_spec_tot["resp_total_time"])
@@ -196,11 +196,12 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     
     # RT for each loop TR1
     for iterations in range(0,6):
-        df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
-        df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")]
-        df_tr_1_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
-        df_tr_1_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
-        df_tr_1_gen_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "general")]
+        df_training_1_loop = df_training_1.loc[df_training_1['repeat_training_loop1.thisRepN'] == iterations]
+        
+        df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "spec")]
+        df_tr_1_sub_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "subrule")]
+        df_tr_1_rule_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "rule")]
+        df_tr_1_gen_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "general")]
         
         RT_Spec_loop_Tr1 = np.mean(df_tr_1_spec_loop["resp_total_time"])
         RT_Sub_loop_Tr1 = np.mean(df_tr_1_sub_loop["resp_total_time"])
@@ -211,6 +212,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
         loop_n_2[iterations] = np.mean(df_tr_1_sub_loop["resp_total_time"])
         loop_n_3[iterations] = np.mean(df_tr_1_rule_loop["resp_total_time"]) #loop with its response value
         loop_n_4[iterations] = np.mean(df_tr_1_gen_loop["resp_total_time"])
+        
         loop_n_5[iterations] = np.mean(df_training_1_loop["resp_total_time"])
     
     df_RT1_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
@@ -255,10 +257,10 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     # OT for each loop TR1
     for iterations in range(0,6):
         df_training_1_loop = df_training_1.loc[df_tr['repeat_training_loop1.thisRepN'] == iterations]
-        df_ot_1_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")]
-        df_ot_1_sub_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "subrule")]
-        df_ot_1_rule_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "rule")]
-        df_ot_1_gen_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "general")]
+        df_ot_1_spec_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "spec")]
+        df_ot_1_sub_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "subrule")]
+        df_ot_1_rule_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "rule")]
+        df_ot_1_gen_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "general")]
         
         OT_Spec_loop_Tr1 = np.mean(df_ot_1_spec_loop["resp1.rt"])
         OT_Sub_loop_Tr1 = np.mean(df_ot_1_sub_loop["resp1.rt"])
@@ -301,17 +303,19 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     ######### TRAINING 2 #########
     ##############################
     
-    df_training_2 = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] >= 0]
-    df_training_2.dropna(how='all', axis=1)
+    df_training_2 = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] >= 0] 
+    df_training_2 = df_training_2.loc[df_tr['resp_total_corr'] == 1] 
     Total_resp_Seq_2 = df_training_2["resp_total_corr"].sum()
     
     df_training_2_wo = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] >= 0]
+    df_training_2_wo = df_training_2_wo.loc[df_tr['resp_total_corr'] == 1] 
     df_training_2_wo = df_training_2_wo.drop(df_training_1[df_training_1['trial_type'] == "filler"].index)
     Corr_S2_Tot_wo = df_training_2_wo["resp_total_corr"].sum() #number of correct sequences (without fillers) - all loops
     
     for iterations in range(0,6):
-        df_training_2_loop = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
+        df_training_2_loop = df_training_2.loc[df_training_2['repeat_training_loop1b.thisRepN'] == iterations]
         df_training_2_loop_wo = df_training_2_wo.loc[df_training_2_wo['repeat_training_loop1b.thisRepN'] == iterations]
+        
         Total_resp_Seq_loop_te = df_training_2_loop["resp_total_corr"].sum()
         
         loop_n_5[iterations] = df_training_2_loop_wo["resp_total_corr"].sum()        
@@ -360,8 +364,6 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     
     #Response Time RT TR2
     #clean the dataset and remove filler and incorrect trials
-    df_training_2 = df_training_2.drop(df_training_2[df_training_2['trial_type'] == "filler"].index)
-    df_training_2 = df_training_2.drop(df_training_2[df_training_2['resp_total_corr'] == 0].index)
     
     df_tr_2_spec_tot = df_training_2.loc[(df_training_2['conditions'] == "spec")]
     RT_Spec_Tot_Tr2 = np.mean(df_tr_2_spec_tot["resp_total_time"])
@@ -378,7 +380,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     # RT for each loop TR2
     for iterations in range(0,6):
         df_training_2_loop = df_training_2.loc[df_tr['repeat_training_loop1b.thisRepN'] == iterations]
-        
+ 
         df_tr_2_spec_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "spec")]
         df_tr_2_sub_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "subrule")]
         df_tr_2_rule_loop = df_training_2_loop.loc[(df_training_2_loop['conditions'] == "rule")]
@@ -414,7 +416,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     df_RT2_per_loop = pd.DataFrame.from_dict(loop_n_5,  orient='index')
     df_RT2_per_loop = df_RT2_per_loop.transpose()
     df_RT2_per_loop.columns = ["RT2_1_Tot", "RT2_2_Tot", "RT2_3_Tot", "RT2_4_Tot", "RT2_5_Tot", "RT2_6_Tot"]    
-     
+    
     loop_n_1.clear()
     loop_n_2.clear()
     loop_n_3.clear() 
