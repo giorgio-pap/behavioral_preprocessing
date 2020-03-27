@@ -1,11 +1,17 @@
+# this script takes as input files the results files (UPDATED ones) and create a unique row for each participant
+# each row contains all the information concerning Training 1 (Tr1), Training 2 (Tr2) and Test (Te)
+
 import pandas as pd
 import os
 import re
 import numpy as np 
 
+# this script goes into the data training folder
+#change the position of the folders according to where you have the data
 data_folder_training = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_training_backup/data/"
 data_folder_test = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_test_backup/data/"
 
+#create two empty dataframe where to store the results
 df_result_tr = pd.DataFrame([]) #empty dataframe for result file
 df_result_te = pd.DataFrame([])
 
@@ -13,56 +19,69 @@ df_result_te = pd.DataFrame([])
 filenames_tr = os.listdir(data_folder_training)
 filenames_te = os.listdir(data_folder_test)
 
-#create a list only with files UPDATED
+#create a list only with files ending with the word "UPDATED"
+#first create an empy list for Training and Test
 UPDATED_files_tr = []
 UPDATED_files_te = []
 
+#append the filenames to the lists
 for filename_tr in filenames_tr:
     if filename_tr.endswith("UPDATED.csv"):
         UPDATED_files_tr.append(filename_tr)
 for filename_te in filenames_te:
     if filename_te.endswith("UPDATED.csv"):
         UPDATED_files_te.append(filename_te)
-        
+
+#sort the filenames in some order
 UPDATED_files_tr = sorted(UPDATED_files_tr)
 UPDATED_files_te = sorted(UPDATED_files_te)
 
-#extract the number of the participants
+#extract the number of the participants for Tr
 pattern = re.compile(r'(\d*)_Mental')
 participant_numbers =  ["; ".join(pattern.findall(item)) for item in UPDATED_files_tr]
 
+###############################
+######### TRAINING 1 #########
+##############################
 
 #read all the UPDATED files one at the time
-for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (number)
+# this will read automatically all the UPDATED files (keep the folder clean = remove files of excluded participants)
+for UPDATED_file_tr in UPDATED_files_tr: 
     
     participant_number_tr = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_tr)]
     str_number = ' '.join(map(str, participant_number_tr)) 
 
-    df_tr = pd.read_csv(UPDATED_file_tr,  header=0)
+    df_tr = pd.read_csv(UPDATED_file_tr,  header=0) #read the data file in
     
+    #only keep rows referring to trials (experimental or filler)
     df_exp_fil_trials = df_tr.loc[(df_tr['trial_type'] == "experimental")|(df_tr['trial_type'] == "filler")]
     
-    group = df_exp_fil_trials["group"].iloc[0]
-
-    ###############################
-    ######### TRAINING 1 #########
-    ##############################
+    group = df_exp_fil_trials["group"].iloc[0] #extract group information (A, B, C, or D)
 
     # ALL LOOPS TOGETHER
+    #this includes filler trilas
+    # Corr_R = times they replied correctly to "is cue 2 encoded by cue 1"
+    # Corr_S = times they perfomed the tapping sequence correctly
+    # "repeat_training_loop1.thisRepN" is the value assigned in the original file to training 1 loops
     df_training_1 = df_exp_fil_trials.loc[df_exp_fil_trials['repeat_training_loop1.thisRepN'] >= 0]
-    Corr_R_Tot = df_training_1["resp_R.corr"].sum() #number of correct relationship answers (incl. fillers) - all loops
-    Corr_S_Tot = df_training_1["resp_total_corr"].sum() #number of correct sequences (incl. fillers) - all loops
+    Corr_R_Tot = df_training_1["resp_R.corr"].sum() #number of correct relationship answers - all loops
+    Corr_S_Tot = df_training_1["resp_total_corr"].sum() #number of correct sequences - all loops
     
+    #only experimental trials
     df_training_1_wo = df_exp_fil_trials.loc[(df_exp_fil_trials['repeat_training_loop1.thisRepN'] >= 0) & (df_exp_fil_trials['trial_type'] == "experimental")]
-    Corr_R_Tot_wo = df_training_1_wo["resp_R.corr"].sum() #number of correct relationship answers (without fillers) - all loops
-    Corr_S_Tot_wo = df_training_1_wo["resp_total_corr"].sum() #number of correct sequences (without fillers) - all loops
+    Corr_R_Tot_wo = df_training_1_wo["resp_R.corr"].sum() #number of correct relationship answers - all loops
+    Corr_S_Tot_wo = df_training_1_wo["resp_total_corr"].sum() #number of correct sequences - all loops
     
+    #create empty dictionaries
     loop_n_0 = {}    
     loop_n_1 = {} 
     loop_n_2 = {}
     loop_n_3 = {} 
     loop_n_4 = {}
     
+    #get information ofr each loop (without specifying the condition)
+    #wo = without filler trials
+    #iteration from(0,6) = the loop is repeated six times one for each experimental loop (our 38 trials)
     for iterations in range(0,6):
         df_training_1_loop = df_training_1.loc[df_training_1['repeat_training_loop1.thisRepN'] == iterations]
         Total_resp_R_loop = df_training_1_loop["resp_R.corr"].sum() #number of correct relationship answers (incl. fillers) - all loops
@@ -91,14 +110,15 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     df_Corr_Seq1_per_loop_wo = pd.DataFrame.from_dict(loop_n_4,  orient='index')
     df_Corr_Seq1_per_loop_wo = df_Corr_Seq1_per_loop_wo.transpose()   
     df_Corr_Seq1_per_loop_wo.columns = ["Corr_S1_1_wo", "Corr_S1_2_wo", "Corr_S1_3_wo", "Corr_S1_4_wo", "Corr_S1_5_wo", "Corr_S1_6_wo"]
-
-    loop_n_1.clear() #empty the previous dictionary
+    
+    #empty the previous dictionaries
+    loop_n_1.clear() 
     loop_n_2.clear()
     loop_n_1.clear()
     loop_n_2.clear()
     
-    # Corr_R for each loop TR1
-    #FILLER TRIALS ARE NOT CONSIDERED ANYMORE
+    # Corr_R for each loop TR1 (specifying the experimentla condition)
+    # FILLER TRIALS ARE NOT CONSIDERED ANYMORE
     for iterations in range(0,6):
         df_training_1_loop = df_training_1.loc[(df_training_1['repeat_training_loop1.thisRepN'] == iterations) & (df_training_1['resp_total_corr'] == 1)]
         df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1_loop['conditions'] == "spec")]
@@ -110,15 +130,16 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
         Corr_R_Sub_loop_Tr1 = df_tr_1_sub_loop["resp_R.corr"].sum()
         Corr_R_Rule_loop_Tr1 = df_tr_1_rule_loop["resp_R.corr"].sum()
         Corr_R_Gen_loop_Tr1 = df_tr_1_gen_loop["resp_R.corr"].sum()      
- 
+        
+        #assign each loop_n dictionary to a condition 
         loop_n_1[iterations] = df_tr_1_spec_loop["resp_R.corr"].sum() #loop with its response value
         loop_n_2[iterations] = df_tr_1_sub_loop["resp_R.corr"].sum()
         loop_n_3[iterations] = df_tr_1_rule_loop["resp_R.corr"].sum()
         loop_n_4[iterations] = df_tr_1_gen_loop["resp_R.corr"].sum()
          
-                
+    #create  a dataframe from the previous 4 dictionaries (one per condition)           
     df_Corr_R_spec_per_loop = pd.DataFrame.from_dict(loop_n_1,  orient='index')
-    df_Corr_R_spec_per_loop = df_Corr_R_spec_per_loop.transpose()
+    df_Corr_R_spec_per_loop = df_Corr_R_spec_per_loop.transpose() #invert x and y axis
     df_Corr_R_spec_per_loop.columns = ["Corr_R_spec_1", "Corr_R_spec_2", "Corr_R_spec_3", "Corr_R_spec_4", "Corr_R_spec_5", "Corr_R_spec_6"]
     
     df_Corr_R_sub_per_loop = pd.DataFrame.from_dict(loop_n_2,  orient='index')
@@ -133,7 +154,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     df_Corr_R_gen_per_loop = df_Corr_R_gen_per_loop.transpose()
     df_Corr_R_gen_per_loop.columns = ["Corr_R_gen_1", "Corr_R_gen_2", "Corr_R_gen_3", "Corr_R_gen_4", "Corr_R_gen_5", "Corr_R_gen_6"]
     
-    
+    # Corr_R for each loop TR1 (specifying the experimentla condition)    
     for iterations in range(0,6):
         df_training_1_loop = df_training_1.loc[(df_training_1['repeat_training_loop1.thisRepN'] == iterations) & (df_training_1['resp_total_corr'] == 1)]
         df_tr_1_spec_loop = df_training_1_loop.loc[(df_training_1['conditions'] == "spec")] #& (df_training_1['did_get_here'] == 1)]
@@ -302,6 +323,8 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     ######### TRAINING 2 #########
     ##############################
     
+    #repeat exactly the same thing but for training 2
+    # "repeat_training_loop1b.thisRepN" is the value assigned in the original file to training 2 loopes
     df_training_2 = df_exp_fil_trials.loc[df_tr['repeat_training_loop1b.thisRepN'] >= 0] 
     df_training_2 = df_training_2.loc[df_tr['resp_total_corr'] == 1] 
     Total_resp_Seq_2 = df_training_2["resp_total_corr"].sum()
@@ -483,6 +506,7 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     loop_n_4.clear()
     loop_n_5.clear()
     
+    #concatenate all the dataframes created so far
     result = pd.concat([df_Corr_R_spec_per_loop, df_Corr_R_sub_per_loop, df_Corr_R_rule_per_loop, 
                         df_Corr_R_gen_per_loop, df_Corr_S1_spec_per_loop, df_Corr_S1_sub_per_loop, 
                         df_Corr_S1_rule_per_loop ,df_Corr_S1_gen_per_loop, 
@@ -496,7 +520,8 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
                         df_Corr_R_per_loop_wo, df_Corr_Seq1_per_loop, df_Corr_Seq1_per_loop_wo,
                         df_Corr_Seq2_per_loop, df_Corr_Seq2_per_loop_wo, df_OT1_per_loop, df_RT1_per_loop,
                         df_RT2_per_loop, df_OT2_per_loop], axis=1, sort=False)
-    
+   
+    # add columns contaning the following values
     result["Subj_tr"] = participant_number_tr
 
     result["Corr_R_Tot"] = Corr_R_Tot
@@ -544,13 +569,15 @@ for UPDATED_file_tr in UPDATED_files_tr: #UPDATED_file_tr = each participant (nu
     result["Corr_S2_rule"] = df_Corr_S2_rule_per_loop.sum(axis=1)
     result["Corr_S2_gen"] = df_Corr_S2_gen_per_loop.sum(axis=1)    
     
+    # append this to the empty dataframe created at the beginning
     df_result_tr = df_result_tr.append(result)
 
 
 ###############################
 ############ TEST ############
 ##############################
-    
+
+# read the files in the test folder    
 pattern = re.compile(r'(\d*)_Mental')
 participant_numbers =  ["; ".join(pattern.findall(item)) for item in UPDATED_files_te]
 
@@ -559,16 +586,18 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
     participant_number_te = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_te)]
     str_number_te = ' '.join(map(str, participant_number_te))
     
-    
+    # with fillers
     df_te = pd.read_csv(data_folder_test + UPDATED_file_te,  header=0)
     df_te = df_te.loc[df_te['file_n'] >= 1]
-    df_te = df_te.loc[(df_te['trial_type'] == "experimental")|(df_te['trial_type'] == "filler")]
+    df_te = df_te.loc[(df_te['trial_type'] == "experimental")|(df_te['trial_type'] == "filler")]  
     Corr_S3_Tot = df_te["resp_total_corr"].sum()      
-
+    
+    # without filler
     df_te_wo = df_te.loc[(df_te['file_n'] >= 1) & (df_te['trial_type'] == "experimental")]
     Corr_S3_Tot_wo = df_te_wo["resp_total_corr"].sum() 
     
-
+    # range changes because in the excel the column "file_n" has a value going NOT from 0 to 6 as in training 
+    # BUT from 1 to 7
     for iterations in range(1,7):
         df_te_loop = df_te.loc[df_te['file_n'] == iterations]
         df_te_loop_wo = df_te_wo.loc[df_te_wo['file_n'] == iterations]
@@ -588,7 +617,8 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
         loop_n_3[iterations] = df_te_rule_loop["resp_total_corr"].sum()
         loop_n_4[iterations] = df_te_gen_loop["resp_total_corr"].sum()
     
-         
+    # S1 = TR1 / S2 = TR2 / S3 = Test
+    # the same goes for RT and OT
     df_Corr_S3_per_loop = pd.DataFrame.from_dict(loop_n_0,  orient='index')
     df_Corr_S3_per_loop = df_Corr_S3_per_loop.transpose()
     df_Corr_S3_per_loop.columns = ["Corr_S3_1", "Corr_S3_2", "Corr_S3_3", "Corr_S3_4", "Corr_S3_5", "Corr_S3_6"]    
@@ -741,12 +771,14 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
     loop_n_3.clear() 
     loop_n_4.clear()    
     loop_n_5.clear()
-        
+    
+    #concatenate all the dataframes created for test
     result_te = pd.concat([df_Corr_S3_per_loop, df_Corr_S3_spec_per_loop, df_Corr_S3_sub_per_loop, df_Corr_S3_rule_per_loop, df_Corr_S3_gen_per_loop,
                           df_RT3_spec_per_loop, df_RT3_sub_per_loop, df_RT3_rule_per_loop, df_RT3_gen_per_loop,
                           df_OT3_spec_per_loop, df_OT3_sub_per_loop, df_OT3_rule_per_loop, df_OT3_gen_per_loop, 
                           df_Corr_S3_per_loop_wo, df_RT3_per_loop, df_RT3_spec_per_loop, df_OT3_per_loop], axis=1, sort=False)
-
+    
+    #add the following columns and values
     result_te["Corr_S3_Tot"] = Corr_S3_Tot
     result_te["Corr_S3_Tot_wo"] = Corr_S3_Tot_wo
     
@@ -775,10 +807,10 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
 ############ END SCRIPT ############
 ###################################   
 
-#training + test    
+#training + test  = concate the two results dataframes  
 result_total = pd.concat([df_result_tr, df_result_te], axis=1, sort=False)
 
-#reorder all the columns
+#reorder all the columns in the preferred order
 result_total = result_total[["Subj_tr" , "Subj_te" , "Group" , "Corr_R_Tot" , "Corr_R_Tot_wo" , "Corr_R_1" , 
                              "Corr_R_1_wo" , "Corr_R_2" , "Corr_R_2_wo" , "Corr_R_3" , "Corr_R_3_wo" , "Corr_R_4" , 
                              "Corr_R_4_wo" , "Corr_R_5" , "Corr_R_5_wo" , "Corr_R_6" , "Corr_R_6_wo" , 
@@ -848,7 +880,7 @@ result_total = result_total[["Subj_tr" , "Subj_te" , "Group" , "Corr_R_Tot" , "C
                              "OT3_gen_1" , "OT3_gen_2" , "OT3_gen_3" , "OT3_gen_4" , "OT3_gen_5" , "OT3_gen_6" , 
                              "OT3_gen_Tot"]]
 
-# print name of columns
+# print name of columns / just to check that everything is there
 #columns_names = list(result_total.columns.values.tolist())
 #with open('columns_names.txt', 'w') as f:
 #    for columns_name in columns_names:
