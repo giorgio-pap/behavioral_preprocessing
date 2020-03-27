@@ -7,11 +7,11 @@ Created on Thu Mar 26 15:04:12 2020
 """
 
 #### ONE WAY ANOVA ####
+# Perform a one way repeated measures
 
 #pip install pandas statsmodels
 
 import pandas as pd
-
 from statsmodels.stats.anova import AnovaRM
 
 input_file = '/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_training_backup/data/results.csv'
