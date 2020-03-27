@@ -22,11 +22,6 @@ dataset = pd.read_csv(input_file)
 #only select the necessary columns
 dataset = dataset[["Subj_tr", "OT3_spec_Tot", "OT3_sub_Tot", "OT3_rule_Tot", "OT3_gen_Tot", "RT3_spec_Tot", "RT3_sub_Tot", "RT3_rule_Tot", "RT3_gen_Tot" ]]
 
-#OT_gen = dataset["OT3_gen_Tot"]
-#OT_spec = dataset["OT3_spec_Tot"]
-#OT_sub = dataset["OT3_sub_Tot"]
-#OT_rule = dataset["OT3_rule_Tot"]
-
 #create a dataset for each condition
 dataset_spec = dataset[["Subj_tr", "OT3_spec_Tot", "RT3_spec_Tot"]]
 dataset_spec = dataset_spec.rename(columns={"OT3_spec_Tot": "OT","RT3_spec_Tot": "RT" })
