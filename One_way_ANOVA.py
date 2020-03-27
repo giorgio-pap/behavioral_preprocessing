@@ -9,21 +9,25 @@ Created on Thu Mar 26 15:04:12 2020
 #### ONE WAY ANOVA ####
 # Perform a one way repeated measures
 
+# if you dont have the stastsmodels package just install it from here:
 #pip install pandas statsmodels
 
 import pandas as pd
 from statsmodels.stats.anova import AnovaRM
 
+# this reads the result file created from the previous script
 input_file = '/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_training_backup/data/results.csv'
 dataset = pd.read_csv(input_file)
 
+#only select the necessary columns
 dataset = dataset[["Subj_tr", "OT3_spec_Tot", "OT3_sub_Tot", "OT3_rule_Tot", "OT3_gen_Tot", "RT3_spec_Tot", "RT3_sub_Tot", "RT3_rule_Tot", "RT3_gen_Tot" ]]
 
-OT_gen = dataset["OT3_gen_Tot"]
-OT_spec = dataset["OT3_spec_Tot"]
-OT_sub = dataset["OT3_sub_Tot"]
-OT_rule = dataset["OT3_rule_Tot"]
+#OT_gen = dataset["OT3_gen_Tot"]
+#OT_spec = dataset["OT3_spec_Tot"]
+#OT_sub = dataset["OT3_sub_Tot"]
+#OT_rule = dataset["OT3_rule_Tot"]
 
+#create a dataset for each condition
 dataset_spec = dataset[["Subj_tr", "OT3_spec_Tot", "RT3_spec_Tot"]]
 dataset_spec = dataset_spec.rename(columns={"OT3_spec_Tot": "OT","RT3_spec_Tot": "RT" })
 dataset_sub = dataset[["Subj_tr", "OT3_sub_Tot", "RT3_sub_Tot"]]
@@ -33,7 +37,7 @@ dataset_rule = dataset_rule.rename(columns={"OT3_rule_Tot": "OT","RT3_rule_Tot":
 dataset_gen = dataset[["Subj_tr", "OT3_gen_Tot", "RT3_gen_Tot"]]
 dataset_gen = dataset_gen.rename(columns={"OT3_gen_Tot": "OT","RT3_gen_Tot": "RT"})
 
-
+#add a condition column to each dataframe
 for i, row in dataset_spec.iterrows():
     dataset_spec.at[i, 'condition'] = "spec"
 for i, row in dataset_sub.iterrows():
@@ -43,9 +47,11 @@ for i, row in dataset_rule.iterrows():
 for i, row in dataset_gen.iterrows():
     dataset_gen.at[i, 'condition'] = "gen"
 
+# concatenate all the dataframes
 frames = [dataset_spec, dataset_sub, dataset_rule, dataset_gen] 
 result_df = pd.concat(frames)   
 
+#perform the ANOVA
 aovrm = AnovaRM(result_df, 'OT', 'Sub_tr', within=['cond'])
 res = aovrm.fit()
 
