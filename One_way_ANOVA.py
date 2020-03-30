@@ -47,7 +47,7 @@ frames = [dataset_spec, dataset_sub, dataset_rule, dataset_gen]
 result_df = pd.concat(frames)   
 
 #perform the ANOVA
-aovrm = AnovaRM(result_df, 'OT', 'Sub_tr', within=['cond'])
+aovrm = AnovaRM(result_df, 'OT', 'Subj_tr', within=['condition'])
 res = aovrm.fit()
 
 print(res) 
@@ -61,8 +61,8 @@ print(res)
 import pingouin as pg
 from pingouin import mixed_anova, read_dataset
 
-df_ANOVA = result_df.rm_anova(dv='OT', within='cond', subject='Sub_tr', detailed=True)
-df_means = result.groupby(["cond"])['OT'].agg(['mean', 'std']).round(2) #means + SD
+df_ANOVA = result_df.rm_anova(dv='OT', within='condition', subject='Subj_tr', detailed=True)
+df_means = result_df.groupby(["condition"])['OT'].agg(['mean', 'std']).round(2) #means + SD
 
 ################
 ##### plot #####
@@ -71,7 +71,7 @@ df_means = result.groupby(["cond"])['OT'].agg(['mean', 'std']).round(2) #means +
 import seaborn as sns
 sns.set(style="darkgrid")
 tips = sns.load_dataset("tips")
-ax = sns.pointplot(data=result, x='cond', y='OT', capsize=.2, order=["spec", "sub", "rule", "gen"])
+ax = sns.pointplot(data=result_df, x='condition', y='OT', capsize=.2, order=["spec", "sub", "rule", "gen"])
 ax.set(ylabel='Onset Time (OT)', xlabel='Condition')
 
 ################
@@ -79,6 +79,6 @@ ax.set(ylabel='Onset Time (OT)', xlabel='Condition')
 ################
 
 # FDR-corrected post hocs with Hedges'g effect size
-df_post_hoc = result.pairwise_ttests(dv='OT', within='cond', subject='sub_tr',
+df_post_hoc = result_df.pairwise_ttests(dv='OT', within='condition', subject='Subj_tr',
                              parametric=True, padjust='fdr_bh', effsize='hedges')
 

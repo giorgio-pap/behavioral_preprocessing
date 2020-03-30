@@ -10,6 +10,7 @@ import statsmodels.formula.api as smf
 import statsmodels.api as sm
 import pandas as pd 
 import matplotlib.pyplot as plt
+from pingouin import linear_regression
 
 input_file = '/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_training_backup/data/results.csv'
 dataset = pd.read_csv(input_file)
@@ -98,8 +99,8 @@ fig.suptitle('Categorical Plotting')
 ####  pingouin  ###
 ###################
 
-y = result["OT"]
-x = result.drop(["OT", "cond", "condition_num", "Sub_tr", "Gen"], axis=1)
+y = result_df["OT"]
+x = result_df.drop(["OT", "condition", "condition_num", "Subj_tr", "Gen", "RT"], axis=1)
 lm = linear_regression(x, y)
 lm.round(2)
 

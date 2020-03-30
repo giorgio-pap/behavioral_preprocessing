@@ -5,7 +5,9 @@ import random
 import pandas as pd
 import decimal
 
-dfObj = pd.DataFrame(columns=['Sub_tr', 'OT', 'cond'])
+from pingouin import linear_regression
+
+dfObj = pd.DataFrame(columns=['Subj_tr', 'OT', 'condition'])
 
 for iterations in range(0,64):
     x = decimal.Decimal(random.randrange(10, 100))/100
@@ -14,13 +16,13 @@ for iterations in range(0,64):
 
 for i, row in dfObj.iterrows():
     if i <= 15:
-        dfObj["cond"][i] = "spec"
+        dfObj["condition"][i] = "spec"
     elif i <= 31:
-        dfObj["cond"][i] = "sub"
+        dfObj["condition"][i] = "sub"
     elif i <= 47:
-        dfObj["cond"][i] = "rule"
+        dfObj["condition"][i] = "rule"
     elif i <= 63:
-        dfObj["cond"][i]  = "gen"
+        dfObj["condition"][i]  = "gen"
 
 df_spec = dfObj[dfObj.values == "spec"]
 df_sub = dfObj[dfObj.values  == "sub"]
@@ -36,19 +38,18 @@ a = 0
 for i in range(0,y):
     a = a +1
     if i < y:
-        df_spec.at[i, 'Sub_tr'] = a
-        df_sub.at[i, 'Sub_tr'] = a
-        df_rule.at[i, 'Sub_tr'] = a
-        df_gen.at[i, 'Sub_tr'] = a
+        df_spec.at[i, 'Subj_tr'] = a
+        df_sub.at[i, 'Subj_tr'] = a
+        df_rule.at[i, 'Subj_tr'] = a
+        df_gen.at[i, 'Subj_tr'] = a
 
 frames = [df_spec, df_sub, df_rule, df_gen]
-result = pd.concat(frames, sort = False)
-result = result.reset_index()
-result = result.drop(['index', "level_0"], axis=1)
+result_df = pd.concat(frames, sort = False)
+result_df = result_df.reset_index()
+result_df = result_df.drop(['index', "level_0"], axis=1)  # type: object
 
 # use to check complete dataframe (only with Jupyter Notebook)
 # if using spyder replace display with print
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):  
-    print(result)
-
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    print(result_df)
 
