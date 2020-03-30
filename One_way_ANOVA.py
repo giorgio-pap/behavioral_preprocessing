@@ -51,3 +51,14 @@ aovrm = AnovaRM(result_df, 'OT', 'Sub_tr', within=['cond'])
 res = aovrm.fit()
 
 print(res) 
+
+
+################
+ ##### use #####
+### pingouin ###
+################
+
+import pingouin as pg
+from pingouin import mixed_anova, read_dataset
+
+df_ANOVA = result_df.rm_anova(dv='OT', within='cond', subject='Sub_tr', detailed=True)
