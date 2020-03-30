@@ -73,3 +73,12 @@ sns.set(style="darkgrid")
 tips = sns.load_dataset("tips")
 ax = sns.pointplot(data=result, x='cond', y='OT', capsize=.2, order=["spec", "sub", "rule", "gen"])
 ax.set(ylabel='Onset Time (OT)', xlabel='Condition')
+
+################
+#### p-hoc #####
+################
+
+# FDR-corrected post hocs with Hedges'g effect size
+df_post_hoc = result.pairwise_ttests(dv='OT', within='cond', subject='sub_tr',
+                             parametric=True, padjust='fdr_bh', effsize='hedges')
+
