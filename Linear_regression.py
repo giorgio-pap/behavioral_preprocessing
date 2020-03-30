@@ -93,3 +93,13 @@ axs[0].bar(names, values)
 axs[1].scatter(names, values)
 axs[2].plot(names, values)
 fig.suptitle('Categorical Plotting')
+
+###################
+####  pingouin  ###
+###################
+
+y = result["OT"]
+x = result.drop(["OT", "cond", "condition_num", "Sub_tr", "Gen"], axis=1)
+lm = linear_regression(x, y)
+lm.round(2)
+
