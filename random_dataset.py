@@ -49,6 +49,6 @@ result = result.drop(['index', "level_0"], axis=1)
 # use to check complete dataframe (only with Jupyter Notebook)
 # if using spyder replace display with print
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):  
-    display(result)
+    print(result)
 
 
