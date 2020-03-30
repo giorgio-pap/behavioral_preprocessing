@@ -62,7 +62,7 @@ import pingouin as pg
 from pingouin import mixed_anova, read_dataset
 
 df_ANOVA = result_df.rm_anova(dv='OT', within='cond', subject='Sub_tr', detailed=True)
-
+df_means = result.groupby(["cond"])['OT'].agg(['mean', 'std']).round(2) #means + SD
 
 ################
 ##### plot #####
