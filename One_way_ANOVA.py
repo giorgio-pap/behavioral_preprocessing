@@ -54,7 +54,7 @@ print(res)
 
 
 ################
- ##### use #####
+##### use ######
 ### pingouin ###
 ################
 
@@ -62,3 +62,14 @@ import pingouin as pg
 from pingouin import mixed_anova, read_dataset
 
 df_ANOVA = result_df.rm_anova(dv='OT', within='cond', subject='Sub_tr', detailed=True)
+
+
+################
+##### plot #####
+################
+
+import seaborn as sns
+sns.set(style="darkgrid")
+tips = sns.load_dataset("tips")
+ax = sns.pointplot(data=result, x='cond', y='OT', capsize=.2, order=["spec", "sub", "rule", "gen"])
+ax.set(ylabel='Onset Time (OT)', xlabel='Condition')
