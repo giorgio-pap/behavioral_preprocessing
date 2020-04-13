@@ -64,7 +64,7 @@ columns_tr = ["key_resp_0.rt", "key_resp_before_t.rt", "imageFile", "repeat_trai
      "key_resp_cue1b.rt", "key_pause_b.keys", "key_pause_b.rt", "key_resp_cue2b.keys", 
      "key_resp_cue2b.rt", "resp1b.keys", "resp1b.corr", "resp1b.rt", "resp2b.keys", 
      "resp2b.corr", "resp2b.rt", "resp3b.keys", "resp3b.corr", "resp3b.rt", 
-     "end_tr2.rt", "time_instructions_b", "time_end_tr2", "time_loop", "time_trial", 
+     "end_tr2.rt", "time_instructions_b", "time_end_tr2", "time_trial", 
      "sitzung", "participant", "geschlecht*", "frameRate", "expName", "date", "group", "bonus", 
      "eligible", "OS"]
 
@@ -658,7 +658,7 @@ participant_numbers =  ["; ".join(pattern.findall(item)) for item in UPDATED_fil
 
 for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (number)
     
-    participant_number_te = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_te)]
+    participant_number_te = [int(s) for s in re.findall(r'(\d*)_MRep', UPDATED_file_te)]
     str_number_te = ' '.join(map(str, participant_number_te))
     
     # with fillers
