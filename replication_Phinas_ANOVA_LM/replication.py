@@ -114,7 +114,7 @@ print(result, "\n*p<0.05\n\nslope is:", slope)
 
 import seaborn as sns
 import matplotlib.pyplot as plt
-ax = sns.regplot(x='Cond_L', y='RT', data=dataset, x_estimator=np.mean)
+ax = sns.regplot(x='Cond_L', y='RT', data=dataset, x_estimator=np.mean, color="y")
 ax.set(ylabel='Reaction Times (RT)', xlabel='Distance')
 ax.set(xticks=np.arange(1, 6, 1)) #limit the number of ticks to 5
 #ax.set_xticks(range(len(dataset))) # <--- set the ticks first
