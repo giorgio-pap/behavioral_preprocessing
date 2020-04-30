@@ -102,7 +102,7 @@ results_summary_2['η2p'] = p_e_sq_2, ""
 
 frames = [results_summary_1, results_summary_2]
 result = pd.concat(frames)
-result = result.drop(['PR(>F)'], axis=1)
+#result = result.drop(['PR(>F)'], axis=1)
 
 #Polynomial Coefficients for 4 variables, linear = -3, 1, 1 ,3
 #check Statistical Methods for Psychology by Howell 
@@ -118,4 +118,4 @@ ax = sns.regplot(x='Cond_L', y='RT', data=dataset, x_estimator=np.mean)
 ax.set(ylabel='Reaction Times (RT)', xlabel='Distance')
 ax.set(xticks=np.arange(1, 5, 1))  #limit the number of ticks to 4
 ax.set_xticklabels(['Cond1','Cond2','Cond3', "Cond4"])
-plt.savefig('saving-a-seaborn-plot-as-pdf-file-300dpi.pdf', dpi = 300)
+#plt.savefig('saving-a-seaborn-plot-as-pdf-file-300dpi.pdf', dpi = 300)
