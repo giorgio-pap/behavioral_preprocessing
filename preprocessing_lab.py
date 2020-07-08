@@ -897,8 +897,6 @@ result_total = result_total[["Subj_tr" , "Subj_te" , "Group" , "Corr_R_Tot" , "C
 
 result_total.to_csv("/Users/andrea/Downloads/means/results.csv", index = False, header=True)
 
-
-
 ############################
 ############################
 #####ANALYSES ON TEST#######
@@ -912,14 +910,12 @@ result_total_sub = result_total[['Subj_te','RT3_sub_Tot', 'OT3_sub_Tot']]
 result_total_rule = result_total[['Subj_te','RT3_rule_Tot', 'OT3_rule_Tot']]
 result_total_gen = result_total[['Subj_te','RT3_gen_Tot', 'OT3_gen_Tot']]
 
-####
 #arrange the dataframe from a horizonatal to a vertical position
 for row in result_total:  
     result_total_spec['condition'] = "spec" 
     result_total_sub['condition'] = "sub" 
     result_total_rule['condition'] = "rule" 
     result_total_gen['condition'] = "gen" 
-
 
 #rename columns
 #append all dataframes together
@@ -929,7 +925,6 @@ rddf = pd.DataFrame()
 for df_x in dfs:
     df_x.columns = ["Id", "RT", "OT", "condition"]
     rddf = rddf.append(df_x)
-
 
 rddf_OT = rddf[['Id','condition', "OT"]]
 rddf_RT = rddf[['Id','condition', "RT"]]
@@ -1084,8 +1079,13 @@ for rt_ot in ["RT","OT"]:
         plt.figure() #this creates a new figure on which your plot will appear
         pl_subj_cond_after = sns.boxplot(x = "Id", y = rt_ot, data = rddf_sub_after) # subject x condition
         pl_subj_cond_after.set_title(cond)
-        
+    
+#########################    
 #### Analysis for RT ####
+#########################    
+
+# based on https://link.springer.com/article/10.3758/s13428-011-0172-y/tables/2
+
 #get the number of subjects
 subjects = rddf['Id'].nunique()
 
@@ -1100,7 +1100,6 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
         df = df_without_out_subj_conc_RT
     elif diffdf == "scRT":
         df = df_without_out_subj_cond_conc_RT
-
 
     lmfit = ols('RT ~ C(condition)+C(Id)',data=df).fit()
     results_summary_1 = sm.stats.anova_lm(lmfit, typ = 2)
@@ -1155,14 +1154,14 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
     
     frames = [results_summary_1, results_summary_2]
     result = pd.concat(frames)
-    result = result.drop(['PR(>F)'], axis=1)
+    #result = result.drop(['PR(>F)'], axis=1)
     
     #Polynomial Coefficients for 4 variables, linear = -3, 1, 1 ,3
     #check Statistical Methods for Psychology by Howell 
     slope = ss_linear/(8*((3*3)+(1*1)+(1*1)+(3*3)))
     slope = slope**(1/2)
     
-    print("\n" + diffdf + "\n", result, "\n*p<0.05\n\nslope is:", slope, "\n__________________________________")
+    print("\n" + diffdf + "\n", result, "\n\nslope is:", slope, "\n__________________________________")
     
     #sns.regplot(x='Cond_L', y='RT', data=dataset)
     plt.figure()
@@ -1174,8 +1173,9 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
     
     #plt.savefig('saving-a-seaborn-plot-as-pdf-file-300dpi.pdf', dpi = 300)
 
-
+#########################    
 #### Analysis for OT ####
+#########################    
 
 #ONE-WAY REPEATED MEASURES ANOVA
 #Print results with relevant SSs MS df F p
@@ -1220,6 +1220,7 @@ for diffdf in ["condOT", "subOT", "scOT"]:
     df['Cond_L'] = df.apply(f, axis=1)
     
     #Another 1-way ANOVA
+    #to cover information missing from the first procedure
     lmfit = ols('OT ~ Cond_L*C(Id)',data=df).fit()                                                   
     results_summary_2 = sm.stats.anova_lm(lmfit, typ = 2)
     results_summary_2 = results_summary_2.drop(['C(Id)', 'Residual'])
@@ -1241,14 +1242,14 @@ for diffdf in ["condOT", "subOT", "scOT"]:
     
     frames = [results_summary_1, results_summary_2]
     result = pd.concat(frames)
-    result = result.drop(['PR(>F)'], axis=1)
+    #result = result.drop(['PR(>F)'], axis=1)
     
     #Polynomial Coefficients for 4 variables, linear = -3, 1, 1 ,3
     #check Statistical Methods for Psychology by Howell 
     slope = ss_linear/(8*((3*3)+(1*1)+(1*1)+(3*3)))
     slope = slope**(1/2)
  
-    print("\n" + diffdf + "\n", result, "\n*p<0.05\n\nslope is:", slope, "\n__________________________________")
+    print("\n" + diffdf + "\n", result, "\n\nslope is:", slope, "\n__________________________________")
 
     #sns.regplot(x='Cond_L', y='OT', data=dataset)
     plt.figure()
