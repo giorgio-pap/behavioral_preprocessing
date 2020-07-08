@@ -5,11 +5,20 @@ import pandas as pd
 import os
 import re
 import numpy as np 
+import seaborn as sns
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+
 
 # this script goes into the data training folder
 #change the position of the folders according to where you have the data
-data_folder_training = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_training_backup/data/"
-data_folder_test = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_test_backup/data/"
+#data_folder_training = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_training_backup/data/"
+#data_folder_test = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_test_backup/data/"
+data_folder_training ="/Users/andrea/Downloads/training/"
+data_folder_test = "/Users/andrea/Downloads/test/"
+
+
 
 #create two empty dataframe where to store the results
 df_result_tr = pd.DataFrame([]) #empty dataframe for result file
@@ -51,7 +60,7 @@ for UPDATED_file_tr in UPDATED_files_tr:
     participant_number_tr = [int(s) for s in re.findall(r'(\d*)_Mental', UPDATED_file_tr)]
     str_number = ' '.join(map(str, participant_number_tr)) 
 
-    df_tr = pd.read_csv(UPDATED_file_tr,  header=0) #read the data file in
+    df_tr = pd.read_csv(data_folder_training + UPDATED_file_tr,  header=0) #read the data file in
     
     #only keep rows referring to trials (experimental or filler)
     df_exp_fil_trials = df_tr.loc[(df_tr['trial_type'] == "experimental")|(df_tr['trial_type'] == "filler")]
@@ -886,4 +895,368 @@ result_total = result_total[["Subj_tr" , "Subj_te" , "Group" , "Corr_R_Tot" , "C
 #    for columns_name in columns_names:
 #        print >> f, columns_name
 
-result_total.to_csv("results.csv", index = False, header=True)
+result_total.to_csv("/Users/andrea/Downloads/means/results.csv", index = False, header=True)
+
+
+
+############################
+############################
+#####ANALYSES ON TEST#######
+############################
+############################
+
+result_total = pd.read_csv("/Users/andrea/Downloads/means/results.csv",  header=0)
+
+result_total_spec = result_total[['Subj_te','RT3_spec_Tot','OT3_spec_Tot']]
+result_total_sub = result_total[['Subj_te','RT3_sub_Tot', 'OT3_sub_Tot']]
+result_total_rule = result_total[['Subj_te','RT3_rule_Tot', 'OT3_rule_Tot']]
+result_total_gen = result_total[['Subj_te','RT3_gen_Tot', 'OT3_gen_Tot']]
+
+####
+#arrange the dataframe from a horizonatal to a vertical position
+for row in result_total:  
+    result_total_spec['condition'] = "spec" 
+    result_total_sub['condition'] = "sub" 
+    result_total_rule['condition'] = "rule" 
+    result_total_gen['condition'] = "gen" 
+
+
+#rename columns
+#append all dataframes together
+dfs=[result_total_spec, result_total_sub, result_total_rule, result_total_gen]
+
+rddf = pd.DataFrame()
+for df_x in dfs:
+    df_x.columns = ["Id", "RT", "OT", "condition"]
+    rddf = rddf.append(df_x)
+
+
+rddf_OT = rddf[['Id','condition', "OT"]]
+rddf_RT = rddf[['Id','condition', "RT"]]
+
+#### identifying outliers ####
+## boxplots
+for rt_ot in ["RT","OT"]:
+    
+    if rt_ot == "RT":
+        df_rt_ot = rddf_RT
+    elif rt_ot == "OT":
+        df_rt_ot = rddf_OT
+        
+    pl_cond = sns.boxplot(x = "condition", y = rt_ot, data = df_rt_ot) #condition
+    plt.figure()
+    pl_subj = sns.boxplot(x = "Id", y = rt_ot, data = df_rt_ot) #subject
+
+    #this loop creates a plot for each condition x id
+    for cond in df_rt_ot["condition"].unique():  
+        rddf_sub = df_rt_ot[df_rt_ot.condition == cond]
+        plt.figure() #this creates a new figure on which your plot will appear
+        pl_subj_cond = sns.boxplot(x = "Id", y = rt_ot, data = rddf_sub) # subject x condition
+        pl_subj_cond.set_title(cond)
+        plt.figure()
+        
+## IQR 
+#create empty dataframes for appending and concatenating 
+df_without_out_cond_conc_RT = [] 
+df_without_out_subj_conc_RT = []
+df_without_out_subj_cond_conc_RT = []
+
+df_only_out_cond_conc_RT = [] 
+df_only_out_subj_conc_RT = []
+df_only_out_subj_cond_conc_RT = []
+
+
+df_without_out_cond_conc_OT= [] 
+df_without_out_subj_conc_OT = []
+df_without_out_subj_cond_conc_OT = []
+
+df_only_out_cond_conc_OT = [] 
+df_only_out_subj_conc_OT = []
+df_only_out_subj_cond_conc_OT = []
+
+#define the function IQR
+def iqr_func(dataframe_outliers):
+    q1, q3 = np.percentile(dataframe_outliers[rt_ot], [25, 75])
+    iqr = q3 - q1
+    df_RT = dataframe_outliers[rt_ot] 
+    #get boolean values of true_false
+    outliers_T_F = (df_RT < (q1 - 1.5 * iqr)) |(df_RT > (q3 + 1.5 * iqr)) 
+    df_without_out = dataframe_outliers[~(outliers_T_F)] #keep where it is false
+    df_only_out = dataframe_outliers[outliers_T_F] #keep where it is true
+    
+    #print IQR values for all possibilities
+#    if outliers_focus == "condition":
+#        print("IQR for", cond, "is", iqr)
+#    elif outliers_focus == "subject": 
+#        print("IQR for subject", subj, "is", iqr)
+#    else:
+#        print("IQR for", cond, "and subject", subj, "is", iqr) 
+    
+    #return dataframes (1) one without outliers, (2) one only with outliers
+    return df_without_out, df_only_out  
+
+for rt_ot in ["RT","OT"]:
+   
+    if rt_ot == "RT":
+        df_rt_ot = rddf_RT
+        df_1 = df_without_out_cond_conc_RT
+        df_2 = df_only_out_cond_conc_RT
+        df_3 = df_without_out_subj_conc_RT
+        df_4 = df_only_out_subj_conc_RT
+        df_5 = df_without_out_subj_cond_conc_RT
+        df_6 = df_only_out_subj_cond_conc_RT
+    elif rt_ot == "OT":
+        df_rt_ot = rddf_OT
+        df_1 = df_without_out_cond_conc_OT
+        df_2 = df_only_out_cond_conc_OT
+        df_3 = df_without_out_subj_conc_OT
+        df_4 = df_only_out_subj_conc_OT
+        df_5 = df_without_out_subj_cond_conc_OT
+        df_6 = df_only_out_subj_cond_conc_OT
+        
+    #CONDITIONS
+    for cond in df_rt_ot["condition"].unique():
+        outliers_focus = "condition"
+        rddf_sub_out = df_rt_ot[df_rt_ot.condition == cond]
+        df_without_out_cond, df_only_out_cond = iqr_func(rddf_sub_out) #extract the variables form the function
+
+        df_1.append(df_without_out_cond) #append condition dataframes after each loop
+        df_2.append(df_only_out_cond) 
+
+    #SUBJECTS
+    for subj in rddf["Id"].unique():
+        outliers_focus = "subject"
+        rddf_sub_out = rddf[rddf.Id == subj]
+        df_without_out_subj, df_only_out_subj = iqr_func(rddf_sub_out)
+
+        df_3.append(df_without_out_subj)
+        df_4.append(df_only_out_subj)
+
+    #SUBJECTS X CONDITION
+    for subj in rddf["Id"].unique(): 
+        for cond in rddf["condition"].unique():
+            outliers_focus = "subject and condition"
+            rddf_sub_out = rddf[rddf.condition == cond]
+            rddf_sub_out = rddf_sub_out[rddf_sub_out.Id == subj] 
+            df_without_out_subj_cond, df_only_out_subj_cond = iqr_func(rddf_sub_out)
+
+            df_5.append(df_without_out_subj_cond) 
+            df_6.append(df_only_out_subj_cond) 
+
+def conc(output_df):
+    output_df = pd.concat(output_df)
+    output_df = output_df.reset_index(drop=True)   
+
+    return output_df
+
+
+df_without_out_cond_conc_RT, df_only_out_cond_conc_RT = (conc(df) for df in [df_without_out_cond_conc_RT, df_only_out_cond_conc_RT]) # or either .map or .applymap
+df_without_out_cond_conc_OT, df_only_out_cond_conc_OT = (conc(df) for df in [df_without_out_cond_conc_OT, df_only_out_cond_conc_OT])
+
+df_without_out_subj_conc_RT, df_only_out_subj_conc_RT = (conc(df) for df in [df_without_out_subj_conc_RT, df_only_out_subj_conc_RT]) # or either .map or .applymap
+df_without_out_subj_conc_OT, df_only_out_subj_conc_OT = (conc(df) for df in [df_without_out_subj_conc_OT, df_only_out_subj_conc_OT])
+
+df_without_out_subj_cond_conc_RT, df_only_out_subj_cond_conc_RT = (conc(df) for df in [df_without_out_subj_cond_conc_RT, df_only_out_subj_cond_conc_RT]) # or either .map or .applymap
+df_without_out_subj_cond_conc_OT, df_only_out_subj_cond_conc_OT = (conc(df) for df in [df_without_out_subj_cond_conc_OT, df_only_out_subj_cond_conc_OT])
+
+
+# boxplots to check results
+for rt_ot in ["RT","OT"]:
+    
+    if rt_ot == "RT":
+        df_rt_ot_1 = df_without_out_cond_conc_RT
+        df_rt_ot_2 = df_without_out_subj_conc_RT
+        df_rt_ot_3 = df_without_out_subj_cond_conc_RT
+    elif rt_ot == "OT":
+        df_rt_ot_1 = df_without_out_cond_conc_OT
+        df_rt_ot_2 = df_without_out_subj_conc_OT
+        df_rt_ot_3 = df_without_out_subj_cond_conc_OT
+        
+    plt.figure()
+    pl_cond_after = sns.boxplot(x = "condition", y = rt_ot, data = df_rt_ot_1) #condition
+    plt.figure()
+    pl_subj_after = sns.boxplot(x = "Id", y = rt_ot, data = df_rt_ot_2) #subject
+
+    
+    #this loop creates a plot for each condition x id
+    for cond in df_rt_ot_3["condition"].unique():  
+        rddf_sub_after = df_rt_ot_3[df_rt_ot_3.condition == cond]
+        plt.figure() #this creates a new figure on which your plot will appear
+        pl_subj_cond_after = sns.boxplot(x = "Id", y = rt_ot, data = rddf_sub_after) # subject x condition
+        pl_subj_cond_after.set_title(cond)
+        
+#### Analysis for RT ####
+#get the number of subjects
+subjects = rddf['Id'].nunique()
+
+#ONE-WAY REPEATED MEASURES ANOVA
+#Print results with relevant SSs MS df F p
+
+for diffdf in ["condRT", "subRT" , "scRT"]:
+    
+    if diffdf == "condRT":
+        df = df_without_out_cond_conc_RT
+    elif diffdf == "subRT":
+        df = df_without_out_subj_conc_RT
+    elif diffdf == "scRT":
+        df = df_without_out_subj_cond_conc_RT
+
+
+    lmfit = ols('RT ~ C(condition)+C(Id)',data=df).fit()
+    results_summary_1 = sm.stats.anova_lm(lmfit, typ = 2)
+    df_means = df.groupby(["condition"])['RT'].agg(['mean', 'std']) #calculate means
+    
+    ms_participant = (results_summary_1.iat[1,0])/(results_summary_1.iat[1,1])                                                    
+    ms_cond = (results_summary_1.iat[0,0])/(results_summary_1.iat[0,1])                                                    
+    ms_participant_x_cond = (results_summary_1.iat[2,0])/(results_summary_1.iat[2,1]) 
+    results_summary_1.insert(2, "MS", [ms_cond, ms_participant, ms_participant_x_cond], True) 
+    results_summary_1.loc["C(Id)",'F'] = ""
+    results_summary_1.loc["Residual",'F'] = ""
+    
+    ss_cond = results_summary_1.iat[0,0]
+    ss_error = results_summary_1.iat[2,0]
+    results_summary_1['η2p'] = (ss_cond)/(ss_cond + ss_error), "", ""
+    
+    #now the fitted data 
+    #convert Cond to numeric 
+    
+    def f(row):
+        if row['condition'] == "spec":
+            val = 1
+        elif row['condition'] == "sub":
+            val = 2
+        elif row ['condition'] == "rule":
+            val = 3
+        else:
+            val = 4
+        return val
+            
+    df['Cond_L'] = df.apply(f, axis=1)
+    
+    #Another 1-way ANOVA
+    lmfit = ols('RT ~ Cond_L*C(Id)',data=df).fit()                                                   
+    results_summary_2 = sm.stats.anova_lm(lmfit, typ = 2)
+    results_summary_2 = results_summary_2.drop(['C(Id)', 'Residual'])
+    
+    #get SS Linear 
+    ss_linear = results_summary_2.iat[0,0]
+    ss_linear_x_participant = results_summary_2.iat[1,0]
+    
+    p_e_sq_2 = ss_linear/(ss_linear_x_participant + ss_linear)
+               
+    ms_linear_x_participant = ss_linear_x_participant/(subjects-1)                                                    
+    F = (ss_linear/ ms_linear_x_participant)
+    
+    results_summary_2.insert(2, "MS", [ss_linear, ms_linear_x_participant], True) 
+    results_summary_2.at["Cond_L","F"] = F
+    results_summary_2.loc["Cond_L:C(Id)",'F'] = ""
+    
+    results_summary_2['η2p'] = p_e_sq_2, ""
+    
+    frames = [results_summary_1, results_summary_2]
+    result = pd.concat(frames)
+    result = result.drop(['PR(>F)'], axis=1)
+    
+    #Polynomial Coefficients for 4 variables, linear = -3, 1, 1 ,3
+    #check Statistical Methods for Psychology by Howell 
+    slope = ss_linear/(8*((3*3)+(1*1)+(1*1)+(3*3)))
+    slope = slope**(1/2)
+    
+    print("\n" + diffdf + "\n", result, "\n*p<0.05\n\nslope is:", slope, "\n__________________________________")
+    
+    #sns.regplot(x='Cond_L', y='RT', data=dataset)
+    plt.figure()
+    ax = sns.regplot(x='Cond_L', y='RT', data=df, x_estimator=np.mean)
+    ax.set_title(diffdf)
+    ax.set(ylabel='Reaction Times (RT)', xlabel='Distance')
+    ax.set(xticks=np.arange(1, 5, 1))  #limit the number of ticks to 4
+    ax.set_xticklabels(['spec','sub','rule', 'gen'])
+    
+    #plt.savefig('saving-a-seaborn-plot-as-pdf-file-300dpi.pdf', dpi = 300)
+
+
+#### Analysis for OT ####
+
+#ONE-WAY REPEATED MEASURES ANOVA
+#Print results with relevant SSs MS df F p
+    
+for diffdf in ["condOT", "subOT", "scOT"]:
+    if diffdf == "condOT":
+        df = df_without_out_cond_conc_OT
+    elif diffdf == "subOT":
+        df = df_without_out_subj_conc_OT
+    elif diffdf == "scOT":
+        df = df_without_out_subj_cond_conc_OT
+
+    lmfit = ols('OT ~ C(condition)+C(Id)',data=df).fit()
+    results_summary_1 = sm.stats.anova_lm(lmfit, typ = 2)
+    df_means = df.groupby(["condition"])['OT'].agg(['mean', 'std']) #calculate means
+    
+    ms_participant = (results_summary_1.iat[1,0])/(results_summary_1.iat[1,1])                                                    
+    ms_cond = (results_summary_1.iat[0,0])/(results_summary_1.iat[0,1])                                                    
+    ms_participant_x_cond = (results_summary_1.iat[2,0])/(results_summary_1.iat[2,1]) 
+    results_summary_1.insert(2, "MS", [ms_cond, ms_participant, ms_participant_x_cond], True) 
+    results_summary_1.loc["C(Id)",'F'] = ""
+    results_summary_1.loc["Residual",'F'] = ""
+    
+    ss_cond = results_summary_1.iat[0,0]
+    ss_error = results_summary_1.iat[2,0]
+    results_summary_1['η2p'] = (ss_cond)/(ss_cond + ss_error), "", ""
+    
+    #now the fitted data 
+    #convert Cond to numeric 
+    
+    def f(row):
+        if row['condition'] == "spec":
+            val = 1
+        elif row['condition'] == "sub":
+            val = 2
+        elif row ['condition'] == "rule":
+            val = 3
+        else:
+            val = 4
+        return val
+            
+    df['Cond_L'] = df.apply(f, axis=1)
+    
+    #Another 1-way ANOVA
+    lmfit = ols('OT ~ Cond_L*C(Id)',data=df).fit()                                                   
+    results_summary_2 = sm.stats.anova_lm(lmfit, typ = 2)
+    results_summary_2 = results_summary_2.drop(['C(Id)', 'Residual'])
+    
+    #get SS Linear 
+    ss_linear = results_summary_2.iat[0,0]
+    ss_linear_x_participant = results_summary_2.iat[1,0]
+    
+    p_e_sq_2 = ss_linear/(ss_linear_x_participant + ss_linear)
+               
+    ms_linear_x_participant = ss_linear_x_participant/(subjects-1)                                                    
+    F = (ss_linear/ ms_linear_x_participant)
+    
+    results_summary_2.insert(2, "MS", [ss_linear, ms_linear_x_participant], True) 
+    results_summary_2.at["Cond_L","F"] = F
+    results_summary_2.loc["Cond_L:C(Id)",'F'] = ""
+    
+    results_summary_2['η2p'] = p_e_sq_2, ""
+    
+    frames = [results_summary_1, results_summary_2]
+    result = pd.concat(frames)
+    result = result.drop(['PR(>F)'], axis=1)
+    
+    #Polynomial Coefficients for 4 variables, linear = -3, 1, 1 ,3
+    #check Statistical Methods for Psychology by Howell 
+    slope = ss_linear/(8*((3*3)+(1*1)+(1*1)+(3*3)))
+    slope = slope**(1/2)
+ 
+    print("\n" + diffdf + "\n", result, "\n*p<0.05\n\nslope is:", slope, "\n__________________________________")
+
+    #sns.regplot(x='Cond_L', y='OT', data=dataset)
+    plt.figure()
+    ax = sns.regplot(x='Cond_L', y='OT', data=df, x_estimator=np.mean)
+    ax.set_title(diffdf)
+    ax.set(ylabel='Reaction Times (OT)', xlabel='Distance')
+    ax.set(xticks=np.arange(1, 5, 1))  #limit the number of ticks to 4
+    ax.set_xticklabels(['spec','sub','rule', 'gen'])
+    
+    #save plots
+    #plt.savefig('saving-a-seaborn-plot-as-pdf-file-300dpi.pdf', dpi = 300)       
