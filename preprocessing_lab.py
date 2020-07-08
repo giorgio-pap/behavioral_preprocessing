@@ -9,8 +9,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import scikit_posthocs as sp
+from scipy import stats
 from statsmodels.formula.api import ols
-
+from pingouin import pairwise_tukey
 
 # this script goes into the data training folder
 #change the position of the folders according to where you have the data
@@ -1162,7 +1163,7 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
     slope = slope**(1/2)
     
 
-    print("\n" + diffdf + "\n", result, "\n\nslope is:", slope, "\n__________________________________")
+    print("\n" + diffdf + "\n", result, "\n\nslope is:", slope, "\n__________________________________\n")
     
     #sns.regplot(x='Cond_L', y='RT', data=dataset)
     plt.figure()
@@ -1173,6 +1174,33 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
     ax.set_xticklabels(['spec','sub','rule', 'gen'])
     
     #plt.savefig('saving-a-seaborn-plot-as-pdf-file-300dpi.pdf', dpi = 300)
+   
+    
+    ########################
+    ###perform post-hocs###
+    #######################
+
+    #holm-adjusted post hoc
+    #x= sp.posthoc_ttest(df, val_col='RT', group_col='condition', p_adjust='holm')
+    #print("post-hoc tests\n\n", x, "\n__________________________________")
+
+    # perform multiple pairwise comparison (Tukey HSD)
+    # for unbalanced (unequal sample size) data, pairwise_tukey uses Tukey-Kramer test
+    m_comp = pairwise_tukey(data=df, dv='RT', between='condition')
+    m_comp =  m_comp.drop(["tail"], axis = 1)
+    m_comp =  m_comp.drop(["hedges"], axis = 1)    
+    print(m_comp)
+
+
+    #check for a normal distribution
+    s_array = df[["RT"]].to_numpy()
+    shapiro_test, p_shapiro = stats.shapiro(s_array)
+    print("\nshapiro test results:", shapiro_test, ",", p_shapiro)
+    
+    if p_shapiro > 0.05:
+        print("p>0.05: normal distribution\n__________________________________\n__________________________________")
+    else:
+        print("not normal distribution\n__________________________________\n__________________________________")
 
 #########################    
 #### Analysis for OT ####
@@ -1250,7 +1278,7 @@ for diffdf in ["condOT", "subOT", "scOT"]:
     slope = ss_linear/(8*((3*3)+(1*1)+(1*1)+(3*3)))
     slope = slope**(1/2)
  
-    print("\n" + diffdf + "\n", result, "\n\nslope is:", slope, "\n__________________________________")
+    print("\n" + diffdf + "\n", result, "\n\nslope is:", slope, "\n__________________________________\n")
 
     #sns.regplot(x='Cond_L', y='OT', data=dataset)
     plt.figure()
@@ -1266,4 +1294,25 @@ for diffdf in ["condOT", "subOT", "scOT"]:
     ########################
     ###perform post-hocs ###
     #######################
-    sp.posthoc_ttest(df, val_col='RT', group_col='condition', p_adjust='holm')
+    
+    #holm-adjusted post hoc
+    #x= sp.posthoc_ttest(df, val_col='OT', group_col='condition', p_adjust='holm')
+    #print("post-hoc tests\n\n", x, "\n__________________________________")
+   
+    # perform multiple pairwise comparison (Tukey HSD)
+    # for unbalanced (unequal sample size) data, pairwise_tukey uses Tukey-Kramer test
+    m_comp = pairwise_tukey(data=df, dv='OT', between='condition')
+    m_comp =  m_comp.drop(["tail"], axis = 1)
+    m_comp =  m_comp.drop(["hedges"], axis = 1)
+    print(m_comp)
+
+
+    #check for a normal distribution
+    s_array = df[["OT"]].to_numpy()
+    shapiro_test, p_shapiro = stats.shapiro(s_array)
+    print("\nshapiro test results:", shapiro_test, ",", p_shapiro)
+    
+    if p_shapiro > 0.05:
+        print("p>0.05: normal distribution\n__________________________________\n__________________________________")
+    else:
+        print("not normal distribution\n__________________________________\n__________________________________")
