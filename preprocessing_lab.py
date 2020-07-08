@@ -8,6 +8,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import scikit_posthocs as sp
 from statsmodels.formula.api import ols
 
 
@@ -1104,7 +1105,7 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
     lmfit = ols('RT ~ C(condition)+C(Id)',data=df).fit()
     results_summary_1 = sm.stats.anova_lm(lmfit, typ = 2)
     df_means = df.groupby(["condition"])['RT'].agg(['mean', 'std']) #calculate means
-    
+
     ms_participant = (results_summary_1.iat[1,0])/(results_summary_1.iat[1,1])                                                    
     ms_cond = (results_summary_1.iat[0,0])/(results_summary_1.iat[0,1])                                                    
     ms_participant_x_cond = (results_summary_1.iat[2,0])/(results_summary_1.iat[2,1]) 
@@ -1136,7 +1137,6 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
     lmfit = ols('RT ~ Cond_L*C(Id)',data=df).fit()                                                   
     results_summary_2 = sm.stats.anova_lm(lmfit, typ = 2)
     results_summary_2 = results_summary_2.drop(['C(Id)', 'Residual'])
-    
     #get SS Linear 
     ss_linear = results_summary_2.iat[0,0]
     ss_linear_x_participant = results_summary_2.iat[1,0]
@@ -1161,6 +1161,7 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
     slope = ss_linear/(8*((3*3)+(1*1)+(1*1)+(3*3)))
     slope = slope**(1/2)
     
+
     print("\n" + diffdf + "\n", result, "\n\nslope is:", slope, "\n__________________________________")
     
     #sns.regplot(x='Cond_L', y='RT', data=dataset)
@@ -1261,3 +1262,8 @@ for diffdf in ["condOT", "subOT", "scOT"]:
     
     #save plots
     #plt.savefig('saving-a-seaborn-plot-as-pdf-file-300dpi.pdf', dpi = 300)       
+
+    ########################
+    ###perform post-hocs ###
+    #######################
+    sp.posthoc_ttest(df, val_col='RT', group_col='condition', p_adjust='holm')
