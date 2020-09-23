@@ -1187,7 +1187,7 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
     # perform multiple pairwise comparison (Tukey HSD)
     # for unbalanced (unequal sample size) data, pairwise_tukey uses Tukey-Kramer test
     m_comp = pairwise_tukey(data=df, dv='RT', between='condition')
-    m_comp =  m_comp.drop(["tail"], axis = 1)
+   #m_comp =  m_comp.drop(["tail"], axis = 1)
     m_comp =  m_comp.drop(["hedges"], axis = 1)    
     print(m_comp)
 
@@ -1284,7 +1284,7 @@ for diffdf in ["condOT", "subOT", "scOT"]:
     plt.figure()
     ax = sns.regplot(x='Cond_L', y='OT', data=df, x_estimator=np.mean)
     ax.set_title(diffdf)
-    ax.set(ylabel='Reaction Times (OT)', xlabel='Distance')
+    ax.set(ylabel='Onset Times (OT)', xlabel='Distance')
     ax.set(xticks=np.arange(1, 5, 1))  #limit the number of ticks to 4
     ax.set_xticklabels(['spec','sub','rule', 'gen'])
     
@@ -1302,7 +1302,7 @@ for diffdf in ["condOT", "subOT", "scOT"]:
     # perform multiple pairwise comparison (Tukey HSD)
     # for unbalanced (unequal sample size) data, pairwise_tukey uses Tukey-Kramer test
     m_comp = pairwise_tukey(data=df, dv='OT', between='condition')
-    m_comp =  m_comp.drop(["tail"], axis = 1)
+    #m_comp =  m_comp.drop(["tail"], axis = 1)
     m_comp =  m_comp.drop(["hedges"], axis = 1)
     print(m_comp)
 
