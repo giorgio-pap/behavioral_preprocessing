@@ -5,20 +5,28 @@ import pandas as pd
 import os
 import re
 import numpy as np 
+import pingouin as pg
 import seaborn as sns
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
-import scikit_posthocs as sp
 from scipy import stats
 from statsmodels.formula.api import ols
-from pingouin import pairwise_tukey
 
+#avoid warning
+import warnings
+def fxn():
+    warnings.warn("deprecated", DeprecationWarning)
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    fxn()
+    
 # this script goes into the data training folder
 #change the position of the folders according to where you have the data
 #data_folder_training = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_training_backup/data/"
 #data_folder_test = "/home/raid2/papitto/Desktop/PsychoPy/MRep_2020_backup/MRep_test_backup/data/"
-data_folder_training ="/Users/andrea/Downloads/training/"
-data_folder_test = "/Users/andrea/Downloads/test/"
+data_folder_training ="/data/pt_02312/MRep_training_backup/data/"
+data_folder_test = "/data/pt_02312/MRep_test_backup/data/"
 
 
 
@@ -599,7 +607,12 @@ for UPDATED_file_te in UPDATED_files_te: #UPDATED_file_te = each participant (nu
     
     # with fillers
     df_te = pd.read_csv(data_folder_test + UPDATED_file_te,  header=0)
+    
     df_te = df_te.loc[df_te['file_n'] >= 1]
+    file_values = df_te.file_n.unique() 
+    df_te["file_n"].replace({file_values[0]: int("1"), file_values[1]: int("2"),file_values[2]: int("3"),
+         file_values[3]: int("4"), file_values[4]: int("5"), file_values[5]: int("6")}, inplace=True)
+   
     df_te = df_te.loc[(df_te['trial_type'] == "experimental")|(df_te['trial_type'] == "filler")]  
     Corr_S3_Tot = df_te["resp_total_corr"].sum()      
     
@@ -897,7 +910,7 @@ result_total = result_total[["Subj_tr" , "Subj_te" , "Group" , "Corr_R_Tot" , "C
 #    for columns_name in columns_names:
 #        print >> f, columns_name
 
-result_total.to_csv("/Users/andrea/Downloads/means/results.csv", index = False, header=True)
+result_total.to_csv("/data/pt_02312/results/results.csv", index = False, header=True)
 
 ############################
 ############################
@@ -905,7 +918,7 @@ result_total.to_csv("/Users/andrea/Downloads/means/results.csv", index = False, 
 ############################
 ############################
 
-result_total = pd.read_csv("/Users/andrea/Downloads/means/results.csv",  header=0)
+result_total = pd.read_csv("/data/pt_02312/results/results.csv",  header=0)
 
 result_total_spec = result_total[['Subj_te','RT3_spec_Tot','OT3_spec_Tot']]
 result_total_sub = result_total[['Subj_te','RT3_sub_Tot', 'OT3_sub_Tot']]
@@ -942,15 +955,15 @@ for rt_ot in ["RT","OT"]:
         
     pl_cond = sns.boxplot(x = "condition", y = rt_ot, data = df_rt_ot) #condition
     plt.figure()
-    pl_subj = sns.boxplot(x = "Id", y = rt_ot, data = df_rt_ot) #subject
+    #pl_subj = sns.boxplot(x = "Id", y = rt_ot, data = df_rt_ot) #subject
 
     #this loop creates a plot for each condition x id
-    for cond in df_rt_ot["condition"].unique():  
-        rddf_sub = df_rt_ot[df_rt_ot.condition == cond]
-        plt.figure() #this creates a new figure on which your plot will appear
-        pl_subj_cond = sns.boxplot(x = "Id", y = rt_ot, data = rddf_sub) # subject x condition
-        pl_subj_cond.set_title(cond)
-        plt.figure()
+    #for cond in df_rt_ot["condition"].unique():  
+     #   rddf_sub = df_rt_ot[df_rt_ot.condition == cond]
+     #   plt.figure() #this creates a new figure on which your plot will appear
+     #   pl_subj_cond = sns.boxplot(x = "Id", y = rt_ot, data = rddf_sub) # subject x condition
+     #   pl_subj_cond.set_title(cond)
+     #   plt.figure()
         
 ## IQR 
 #create empty dataframes for appending and concatenating 
@@ -1072,15 +1085,15 @@ for rt_ot in ["RT","OT"]:
     plt.figure()
     pl_cond_after = sns.boxplot(x = "condition", y = rt_ot, data = df_rt_ot_1) #condition
     plt.figure()
-    pl_subj_after = sns.boxplot(x = "Id", y = rt_ot, data = df_rt_ot_2) #subject
+    #pl_subj_after = sns.boxplot(x = "Id", y = rt_ot, data = df_rt_ot_2) #subject
 
     
     #this loop creates a plot for each condition x id
-    for cond in df_rt_ot_3["condition"].unique():  
-        rddf_sub_after = df_rt_ot_3[df_rt_ot_3.condition == cond]
-        plt.figure() #this creates a new figure on which your plot will appear
-        pl_subj_cond_after = sns.boxplot(x = "Id", y = rt_ot, data = rddf_sub_after) # subject x condition
-        pl_subj_cond_after.set_title(cond)
+    #for cond in df_rt_ot_3["condition"].unique():  
+    #    rddf_sub_after = df_rt_ot_3[df_rt_ot_3.condition == cond]
+    #    plt.figure() #this creates a new figure on which your plot will appear
+    #    pl_subj_cond_after = sns.boxplot(x = "Id", y = rt_ot, data = rddf_sub_after) # subject x condition
+    #    pl_subj_cond_after.set_title(cond)
     
 #########################    
 #### Analysis for RT ####
@@ -1094,12 +1107,10 @@ subjects = rddf['Id'].nunique()
 #ONE-WAY REPEATED MEASURES ANOVA
 #Print results with relevant SSs MS df F p
 
-for diffdf in ["condRT", "subRT" , "scRT"]:
+for diffdf in ["condRT", "scRT"]:
     
     if diffdf == "condRT":
         df = df_without_out_cond_conc_RT
-    elif diffdf == "subRT":
-        df = df_without_out_subj_conc_RT
     elif diffdf == "scRT":
         df = df_without_out_subj_cond_conc_RT
 
@@ -1180,18 +1191,10 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
     ###perform post-hocs###
     #######################
 
-    #holm-adjusted post hoc
-    #x= sp.posthoc_ttest(df, val_col='RT', group_col='condition', p_adjust='holm')
-    #print("post-hoc tests\n\n", x, "\n__________________________________")
-
-    # perform multiple pairwise comparison (Tukey HSD)
-    # for unbalanced (unequal sample size) data, pairwise_tukey uses Tukey-Kramer test
-    m_comp = pairwise_tukey(data=df, dv='RT', between='condition')
-   #m_comp =  m_comp.drop(["tail"], axis = 1)
-    m_comp =  m_comp.drop(["hedges"], axis = 1)    
-    print(m_comp)
-
-
+    # perform multiple pairwise comparison 
+    t_test_PP = pg.pairwise_ttests(dv='RT', between='condition', data=df)#.round(3)
+    print(t_test_PP)
+    
     #check for a normal distribution
     s_array = df[["RT"]].to_numpy()
     shapiro_test, p_shapiro = stats.shapiro(s_array)
@@ -1209,11 +1212,9 @@ for diffdf in ["condRT", "subRT" , "scRT"]:
 #ONE-WAY REPEATED MEASURES ANOVA
 #Print results with relevant SSs MS df F p
     
-for diffdf in ["condOT", "subOT", "scOT"]:
+for diffdf in ["condOT", "scOT"]:
     if diffdf == "condOT":
         df = df_without_out_cond_conc_OT
-    elif diffdf == "subOT":
-        df = df_without_out_subj_conc_OT
     elif diffdf == "scOT":
         df = df_without_out_subj_cond_conc_OT
 
@@ -1295,18 +1296,10 @@ for diffdf in ["condOT", "subOT", "scOT"]:
     ###perform post-hocs ###
     #######################
     
-    #holm-adjusted post hoc
-    #x= sp.posthoc_ttest(df, val_col='OT', group_col='condition', p_adjust='holm')
-    #print("post-hoc tests\n\n", x, "\n__________________________________")
-   
-    # perform multiple pairwise comparison (Tukey HSD)
-    # for unbalanced (unequal sample size) data, pairwise_tukey uses Tukey-Kramer test
-    m_comp = pairwise_tukey(data=df, dv='OT', between='condition')
-    #m_comp =  m_comp.drop(["tail"], axis = 1)
-    m_comp =  m_comp.drop(["hedges"], axis = 1)
-    print(m_comp)
-
-
+    # perform multiple pairwise comparison
+    t_test_PP = pg.pairwise_ttests(dv='OT', between='condition', data=df).round(3)
+    print(t_test_PP)
+    
     #check for a normal distribution
     s_array = df[["OT"]].to_numpy()
     shapiro_test, p_shapiro = stats.shapiro(s_array)
@@ -1316,3 +1309,4 @@ for diffdf in ["condOT", "subOT", "scOT"]:
         print("p>0.05: normal distribution\n__________________________________\n__________________________________")
     else:
         print("not normal distribution\n__________________________________\n__________________________________")
+
